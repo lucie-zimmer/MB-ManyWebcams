@@ -1,0 +1,189 @@
+---
+title: "ManyWebcams: web-based eye-tracking"
+author: "CDS preliminary analysis"
+date: '`r format(Sys.time(), "%a %b %d %X %Y")`'
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r libraries, results='hide', message=FALSE, warning=FALSE}
+library(readr)
+library(knitr)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(psych)
+library(effsize)
+library(Matrix)
+library(lme4)
+library(lmerTest)
+library(carData)
+library(effects)
+library(stringr)
+
+knitr::opts_chunk$set(cache = TRUE, warn = FALSE, message = FALSE)
+options(scipen=999)
+```
+
+# Intro
+Analysis script for the ManyWebcams web-based eye-tracking study. Script for preliminary results to present at CDS 2022
+
+# working directory
+```{r}
+#setwd("G:/ManyWebcams/Analyses/CDS_prelim_analysis")
+```
+
+# File reading
+```{r}
+data_webcam <- read.csv("relative_data.csv", stringsAsFactors = TRUE)
+data_pilot <- read.csv("pilot_data.csv", stringsAsFactors = TRUE)
+data_demo <- read.csv2("demographic_data.csv", stringsAsFactors = TRUE)
+```
+
+# Preprocessing
+```{r}
+# ManyWebcams data
+## exclude one toddler, because preterm
+data_webcam <- filter(data_webcam, !subid %in% c("LMU_746_A"))
+
+## long to wide format
+data_webcam$condition <- NULL
+data_webcam$row <- NULL
+data_webcam <- data_webcam %>% spread(aoi, freq)
+
+## calculate relative looking score for target vs. distractor only
+data_webcam$percorr <- round(data_webcam$target/(data_webcam$target+data_webcam$distractor), digits = 2)
+data_webcam$distractor <- NULL
+data_webcam$target <- NULL
+data_webcam$none <- NULL
+
+# MB2-Pilot data
+data_inlab <- data_pilot %>%
+  filter(experiment_num=="pilot_1a" & t >= -4000 & t <= 0) %>%
+  group_by(subid) %>%
+  summarize(
+    lookingscore = sum(grepl("target", aoi, fixed = TRUE), na.rm = TRUE) / sum(grepl("target", aoi, fixed = TRUE) | grepl( "distractor", aoi, fixed = TRUE))
+  )
+
+## prepare inlab data for merging
+colnames(data_inlab)[colnames(data_inlab) == 'lookingscore'] <- 'percorr'
+data_inlab$percorr <- round(data_inlab$percorr, digits = 2)
+
+# add method (webbased = 0, in-lab = 1)
+data_webcam$method <- "webcam"
+data_inlab$method <- "inlab"
+
+# merge webbased & inlab
+data <- rbind(data_webcam, data_inlab)
+```
+
+# Descriptives for ManyWebcams
+For the children sample, a total of 50 participants were tested. From these, 15 had to be excluded due to technical errors with the eye tracking procedure (e.g., webcam could not be accessed, data upload) and 3 due to low sampling rate. From the remaining 32 participants, 2 had to be excluded due to interference (e.g., caregiver interfered with procedure or child was inattentive) during the procedure. These trials were identified by visual inspection. The final sample of included children is N = 30.
+```{r}
+# add info about gender and age to data
+data_webcamDemo <- merge(data_webcam, data_demo, by = c("subid"))
+
+data_webcamDemo$age <- data_webcamDemo$age_days
+data_webcamDemo$gender <- data_webcamDemo$participant_gender
+data_webcamDemo$country <- data_webcamDemo$residence_country
+
+data_webcamDemo <- subset(data_webcamDemo, select = c(subid, age,  gender, country, percorr))
+
+# calculate descriptives
+## age in months
+data_webcamDemo$age <- (data_webcamDemo$age/30.5)
+
+## Get number of girls and boys
+sum(data_webcamDemo$gender == "girl") #17
+sum(data_webcamDemo$gender == "boy") #13
+
+## Get residence country
+summary(data_webcamDemo$country) # Germany: 19, UK: 8, Austria: 3
+
+## Get age range
+mean(data_webcamDemo$age) #22.27 months
+sd(data_webcamDemo$age) #2.400 months
+summary(data_webcamDemo$age) # min.:18.69 months, max.: 26.92 months
+
+## Descriptives for ManyBabies2-Pilot
+## n=65 (37 girls; mean age = 23.14 months; range 18.25 ro 26.84 months)
+```
+
+# Inferential Statistics
+H1: Children will engage in goal-based action predictions, indicated by above-chance looking towards the loaction that matches the outcome of an agent´s action goal
+```{r, warning=FALSE}
+t.test(data_webcam$percorr, mu = 0.5, alternative = "two.sided")
+cohen.d(data_webcam$percorr ~ 1, mu = 0.5)
+```
+
+H2: Does the eye-tracking method have an effect on the measured proportional looking score? No strong directional hypothesis. (Method will be contrast coded (web-based = 0, lab-based = 1))
+```{r, warning=FALSE}
+# Error: number of levels of each grouping factor must be < number of observations (problems: subid)
+# definition of new ID
+
+#data$ID <- NA
+#data$ID <- c(1:95)
+#h2 <- lmer(percorr ~ method + (1|ID), data=data) #same error --> reason: only one observation per participant (no random slope)
+
+h2 <- lm(percorr ~ method, data)
+
+anova(h2)
+summary(h2)
+plot(allEffects(h2))
+
+str(data$subid)
+```
+
+H3: Lower proportion of children who contribute usable data will be lower in webcam-based as compared to lab-based eye-tracking.
+
+ManyWebcams: 60% included; exclusion due to technical problems (n= 15), low sampling rate (n= 3), manual exclusion: interference (n = 2)
+ManyBabies2 Pilot: 89.04% included; exclusion due to early termination (n = 6), technical problems (n= 2)
+
+```{r}
+exclusion.table <- matrix(c(30, 65, 20, 8), nrow = 2, ncol = 2, byrow = T)
+rownames(exclusion.table) <- c('included', 'excluded')
+colnames(exclusion.table) <- c('online', 'in-lab')
+
+exclusion.table
+
+h3 <- chisq.test(exclusion.table)
+h3 
+# p-value sign., both variables are not independent
+h3$expected
+```
+
+
+# preparation for plot
+```{r}
+# create values for error bars
+mean(data_webcam$percorr) # 0.5898
+mean(data_inlab$percorr)  # 0.7345
+
+dataErrorbar <- group_by(data, method) %>%
+  summarise(mean = mean(percorr), se = sd(percorr)/sqrt(n()), upper = mean + se, lower = mean - se)
+```
+
+# plot
+```{r, warning=FALSE}
+# plot the data
+H2.plot <- ggplot(data, aes(x = method, y = percorr, colour = method, fill = method)) +
+  geom_violin(alpha = 0.5, width = 1, position = position_dodge(width = 0.9), show.legend = FALSE ) +
+  geom_jitter(aes(colour = method),  size = 2, alpha = 0.6, position = position_jitterdodge(jitter.width = 0.2, jitter.height = 0, dodge.width = 0.9), show.legend = FALSE) +
+ geom_point(aes(x = method, y = mean), dataErrorbar, inherit.aes = FALSE, size = 2, color = "black") +
+  geom_errorbar(aes(x = method, ymax = upper, ymin = lower), dataErrorbar, inherit.aes = FALSE, 
+             stat = "identity", width = 0.05, color = "black") +
+  ylim(0, 1) +
+  scale_colour_manual(values=c("skyblue", "red"))  +
+  scale_fill_manual(values=c("skyblue",  "red")) +
+  geom_hline(yintercept=0.5, linetype="dashed", color = "black") +
+  labs(title="Proportion Looking Score per method", x="Method", y="Proportion Looking Score (target/target+distractor)") +
+  scale_x_discrete(labels=c("lab" = "in-lab", "online" = "online")) +
+  theme_classic()
+
+print(H2.plot)
+```
