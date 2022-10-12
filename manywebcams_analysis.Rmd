@@ -11,20 +11,44 @@ editor_options:
   chunk_output_type: inline
 ---
 
+When loading the packages for this script, you can choose to use [groundhog](https://groundhogr.com/) by setting `use_groundhog = T`. Groundhog will install packages from `2022-10-09` and ensures that the functions keep working the same way as when the script was last developed. If you prefer to load packages the conventional way, leave `use_groundhog = F` (default).
+
 ```{r libraries, results='hide', message=FALSE, warning=FALSE}
-library(readr)
-library(knitr)
-library(tidyr)
-library(dplyr)
-library(ggplot2)
-library(psych)
-library(effsize)
-library(Matrix)
-library(lme4)
-library(lmerTest)
-library(carData)
-library(effects)
-library(stringr)
+# should R use groundhog
+use_groundhog <- F
+
+# set vector w/ packages
+packages = c("readr",
+             "knitr",
+             "tidyr",
+             "dplyr",
+             "ggplot2",
+             "psych",
+             "effsize",
+             "Matrix",
+             "lme4",
+             "lmerTest",
+             "carData",
+             "effects",
+             "stringr",
+             "here")
+
+# load packages
+if(use_groundhog == T){
+  packages_date <- "2022-10-09" 
+  install.packages("groundhog")
+  library(groundhog) # v2.0.1
+  groundhog::groundhog.library(pkg = packages, date = packages_date)
+  rm(packages, packages_date, use_groundhog) # clean
+}else{
+  # if necessary install
+  installed_packages <- packages %in% rownames(installed.packages())
+  if(any(installed_packages == F)){install.packages(packages[!installed_packages])}
+  # load packages
+  invisible(lapply(packages, library, character.only = T))
+  # clean
+  rm(installed_packages, packages, use_groundhog)
+}
 
 knitr::opts_chunk$set(cache = TRUE, warn = FALSE, message = FALSE)
 options(scipen=999)
@@ -32,11 +56,6 @@ options(scipen=999)
 
 # Intro
 Analysis script for the ManyWebcams web-based eye-tracking study. Script for preliminary results to present at CDS 2022
-
-# working directory
-```{r}
-#setwd("G:/ManyWebcams/Analyses/CDS_prelim_analysis")
-```
 
 # File reading
 ```{r}
@@ -46,6 +65,7 @@ data_demo <- read.csv2("demographic_data.csv", stringsAsFactors = TRUE)
 ```
 
 # Preprocessing
+
 ```{r}
 # ManyWebcams data
 ## exclude one toddler, because preterm
