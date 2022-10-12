@@ -55,21 +55,52 @@ options(scipen=999)
 ```
 
 # Intro
-Analysis script for the ManyWebcams web-based eye-tracking study. Script for preliminary results to present at CDS 2022
+Analysis script for the ManyWebcams web-based eye-tracking study.
 
-# File reading
+# Setting constants
 ```{r}
-data_webcam <- read.csv("relative_data.csv", stringsAsFactors = TRUE)
-data_pilot <- read.csv("pilot_data.csv", stringsAsFactors = TRUE)
-data_demo <- read.csv2("demographic_data.csv", stringsAsFactors = TRUE)
+FILE_NAME_PILOT <- "pilot_data.csv"
+
+FILE_NAME_WEBCAM <- "relative_data.csv"
+FILE_NAME_DEMO <- "demographic_data.csv"
+FILE_NAME_EXCLUSION_AFTERPRE <- "participants_excluded_after_pre.txt"
+
+# already excluded from the datasets, read for reporting
+FILE_NAME_EXCLUSION_MANUAL <- "excluded_rials.csv"
+FILE_NAME_EXCLUSION_SAMPLING <- "excluded_trials_samplingrate.txt"
+  
+DIR_NAME_DATA_MERGE <- "lab_data"
+```
+
+# File reading and processing
+```{r}
+
+data_pilot <- read.csv(FILE_NAME_PILOT, stringsAsFactors = TRUE)
+
+# check if data merge is necessary
+if(FALSE && dir.exists(DIR_NAME_DATA_MERGE)){
+  
+}else{ # singular data source
+  data_webcam <- read.csv(FILE_NAME_WEBCAM, stringsAsFactors = TRUE)
+  data_demo <- read.csv2(FILE_NAME_DEMO, stringsAsFactors = TRUE)
+  
+  if (file.exists(FILE_NAME_EXCLUSION_AFTERPRE)){
+    posterior_exclusions <- readLines(FILE_NAME_EXCLUSION_AFTERPRE)
+  }else {
+    posterior_exclusions <- c()
+  }
+  
+}
+
 ```
 
 # Preprocessing
 
 ```{r}
 # ManyWebcams data
-## exclude one toddler, because preterm
-data_webcam <- filter(data_webcam, !subid %in% c("LMU_746_A"))
+## exclude toddler from the final data set after relative data was already calculated
+data_webcam <- filter(data_webcam, !subid %in% posterior_exclusions)
+
 
 ## long to wide format
 data_webcam$condition <- NULL

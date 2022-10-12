@@ -7,7 +7,6 @@ For instructions on how to generate data and further information on the study, r
 
 ## Temporary TODOs for Adrian
 
-- Move post participant exclusion from script to files
 - Add number reporting for excluded trials
 - Merge data files
     - conditional logic
