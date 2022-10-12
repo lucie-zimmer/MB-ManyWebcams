@@ -70,6 +70,7 @@ FILE_NAME_EXCLUSION_MANUAL <- "excluded_rials.csv"
 FILE_NAME_EXCLUSION_SAMPLING <- "excluded_trials_samplingrate.txt"
   
 DIR_NAME_DATA_MERGE <- "lab_data"
+DIR_NAME_DATA_MERGE_OUTPUT <- "merge_output"
 ```
 
 # File reading and processing
@@ -78,18 +79,52 @@ DIR_NAME_DATA_MERGE <- "lab_data"
 data_pilot <- read.csv(FILE_NAME_PILOT, stringsAsFactors = TRUE)
 
 # check if data merge is necessary
-if(FALSE && dir.exists(DIR_NAME_DATA_MERGE)){
+if(dir.exists(DIR_NAME_DATA_MERGE)){
+  data_webcam_list <- list()
+  data_demo_list <- list()
+  
+  posterior_exclusions <- c()
+  
+  labs <- list.files(path=DIR_NAME_DATA_MERGE)
+  for(lab in labs){
+    
+    data_webcam_part <- read.csv(file.path(DIR_NAME_DATA_MERGE, lab, FILE_NAME_WEBCAM), stringsAsFactors = TRUE)
+    data_webcam_part$data_source <- lab
+    data_webcam_list <- append(data_webcam_list, list(data_webcam_part))
+    
+    data_demo_part <- read.csv2(file.path(DIR_NAME_DATA_MERGE, lab, FILE_NAME_DEMO), stringsAsFactors = TRUE)
+    data_demo_part$data_source <- lab
+    data_demo_list <- append(data_demo_list, list(data_demo_part))
+    
+    if (file.exists(file.path(DIR_NAME_DATA_MERGE, lab, FILE_NAME_EXCLUSION_AFTERPRE))){
+      posterior_exclusions <- c(posterior_exclusions, readLines(file.path(DIR_NAME_DATA_MERGE, lab, FILE_NAME_EXCLUSION_AFTERPRE)))
+    }
+  }
+  
+  #rm(data_webcam_part, data_demo_part)
+  
+  data_webcam <- do.call("rbind", data_webcam_list)
+  data_demo <- do.call("rbind", data_demo_list)
+  
+  if(!dir.exists(DIR_NAME_DATA_MERGE_OUTPUT)){
+    dir.create(DIR_NAME_DATA_MERGE_OUTPUT)
+  }
+  
+  write.csv(data_webcam, file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_WEBCAM), row.names = FALSE)
+  write.csv(data_demo, file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_DEMO), row.names = FALSE)
+  
+  writeLines(posterior_exclusions <- c(),
+              file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_EXCLUSION_AFTERPRE))
+
   
 }else{ # singular data source
   data_webcam <- read.csv(FILE_NAME_WEBCAM, stringsAsFactors = TRUE)
   data_demo <- read.csv2(FILE_NAME_DEMO, stringsAsFactors = TRUE)
   
+  posterior_exclusions <- c()
   if (file.exists(FILE_NAME_EXCLUSION_AFTERPRE)){
     posterior_exclusions <- readLines(FILE_NAME_EXCLUSION_AFTERPRE)
-  }else {
-    posterior_exclusions <- c()
   }
-  
 }
 
 ```
