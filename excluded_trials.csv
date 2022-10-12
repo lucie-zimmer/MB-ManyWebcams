@@ -1,0 +1,87 @@
+id;FAM1;FAM1_OK;FAM2;FAM2_OK;FAM3;FAM3_OK;FAM4;FAM4_OK;comment
+LMU_355;FAM_LR;no;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;gaze coordinates?
+LMU_968;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;low sampling rate? Sometimes gaze coordinate missing
+LMU_858;FAM_LR;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;no child data
+LMU_372;FAM_RL;yes;FAM_RR;yes;FAM_LL;no;FAM_LR;no;child looks away
+LMU_288;FAM_LR;yes;FAM_LL;no;FAM_RR;no;FAM_RL;yes;some gaze coordinates missing
+LMU_158;FAM_RL;no;FAM_RR;yes;FAM_LL;no;FAM_LR;no;child not attentive
+LMU_456;FAM_RL;no;FAM_RR;no;FAM_LL;yes;FAM_LR;yes;child looks away
+LMU_630;FAM_RL;no;FAM_RR;yes;FAM_LL;yes;FAM_LR;yes;pointing finger tracked instead of eyes?
+LMU_991;FAM_RL;no;FAM_RR;no;FAM_LL;no;FAM_LR;no;gaze coordinate follows the action, but no webcam video available
+LMU_924;FAM_LR;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;no webcam video
+LMU_315;FAM_LR;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;child too young
+LMU_732;FAM_RL;yes;FAM_RR;yes;FAM_LL;no;FAM_LR;yes;eye gaze and gaze coordinate do not match
+LMU_842;FAM_RL;yes;FAM_RR;yes;FAM_LL;yes;FAM_LR;yes;sampling rate low?
+LMU_767;FAM_LR;no;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;some gaze coordinates missing, pointing finger
+LMU_775;FAM_RL;no;FAM_RR;no;FAM_LL;no;FAM_LR;no;some gaze coordinates missing
+LMU_166;FAM_RL;yes;FAM_RR;yes;FAM_LL;yes;FAM_LR;yes;
+LMU_711;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_114;FAM_RL;yes;FAM_RR;yes;FAM_LL;yes;FAM_LR;yes;parent�s eyes visible
+LMU_180;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_465;FAM_RL;no;FAM_RR;yes;FAM_LL;no;FAM_LR;no;child looks away and moves a lot
+LMU_778;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;second webcam?
+LMU_199;FAM_RL;yes;FAM_RR;yes;FAM_LL;yes;FAM_LR;yes;
+LMU_762;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_651;FAM_RL;yes;FAM_RR;yes;FAM_LL;yes;FAM_LR;no;child looks away
+LMU_421;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;low sampling rate?
+LMU_786;FAM_RL;no;FAM_RR;no;FAM_LL;no;FAM_LR;no;not sure if child�s or parent�s gaze is tracked?
+LMU_746;FAM_LR;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;child was born preterm
+LMU_208;FAM_RL;yes;FAM_RR;yes;FAM_LL;yes;FAM_LR;yes;
+LMU_136;FAM_LR;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;no data
+LMU_256;FAM_RL;no;FAM_RR;no;FAM_LL;no;FAM_LR;no;child too old
+LMU_763;FAM_LR;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;no data
+LMU_889;FAM_RL;yes;FAM_RR;yes;FAM_LL;yes;FAM_LR;yes;
+LMU_815;FAM_LR;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;no data
+LMU_247;FAM_RL;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;no data
+LMU_466;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;second webcam, but tracking works well
+LMU_855;FAM_RL;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;no data
+LMU_329;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_577;FAM_RL;no;FAM_RR;no;FAM_LL;no;FAM_LR;no;child looks away, mother interferes
+LMU_883;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_299;FAM_RL;no;FAM_RR;no;FAM_LL;no;FAM_LR;no;no webcam video
+LMU_995;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_739;FAM_RL;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;no data
+LMU_962;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;child blinks a lot
+LMU_774;FAM_RL;yes;FAM_RR;yes;FAM_LL;yes;FAM_LR;yes;
+LMU_245;FAM_LR;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;no data
+LMU_710;FAM_RL;no;FAM_RR;no;FAM_LL;yes;FAM_LR;yes;child fussy, gaze and coordinates do not match
+LMU_248;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_339;FAM_RL;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;no data
+LMU_111;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_290;FAM_RL;no;FAM_RR;no;FAM_LL;yes;FAM_LR;yes;gaze coordinates sometimes missing, child looks away
+LMU_607;FAM_LR;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;no data
+LMU_379;FAM_RL;yes;FAM_RR;yes;FAM_LL;yes;FAM_LR;yes;
+LMU_287;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_932;FAM_RL;no;FAM_RR;no;FAM_LL;no;FAM_LR;no;not sure if child�s or parent�s gaze is tracked?
+LMU_369;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_948;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;no;
+LMU_680;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_754;FAM_RL;no;FAM_RR;no;FAM_LL;no;FAM_LR;no;shift to the right side
+LMU_122;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_439;FAM_RL;yes;FAM_RR;yes;FAM_LL;yes;FAM_LR;yes;
+LMU_341;FAM_LR;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;no data
+LMU_809;FAM_RL;no;FAM_RR;no;FAM_LL;no;FAM_LR;no;no data
+LMU_720;FAM_LR;no;FAM_LL;yes;FAM_RR;no;FAM_RL;yes;shift to the left side
+LMU_874;FAM_RL;no;FAM_RR;no;FAM_LL;no;FAM_LR;no;child was born preterm
+LMU_469;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_129;FAM_RL;yes;FAM_RR;yes;FAM_LL;yes;FAM_LR;yes;wrong webcam, but tracking works well
+LMU_644;FAM_RL;no;FAM_RR;yes;FAM_LL;no;FAM_LR;yes;gaze and gaze coordinates do not match (shift to the right side, when chasee&chaser end up on the left side)
+LMU_418;FAM_RL;yes;FAM_RR;yes;FAM_LL;yes;FAM_LR;yes;
+LMU_761;FAM_RL;yes;FAM_RR;yes;FAM_LL;yes;FAM_LR;yes;
+LMU_107;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_562;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;no;movement, gaze coordinates missing
+LMU_787;FAM_RL;no;FAM_RR;no;FAM_LL;no;FAM_LR;no;shift to the right side
+LMU_108;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_620;FAM_RL;yes;FAM_RR;yes;FAM_LL;yes;FAM_LR;yes;low sampling rate?
+LMU_992;FAM_LR;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;low sampling rate?
+LMU_412;FAM_RL;yes;FAM_RR;yes;FAM_LL;no;FAM_LR;yes;
+LMU_307;FAM_LR;yes;FAM_LL;no;FAM_RR;yes;FAM_RL;yes;low sampling rate?
+LMU_999;FAM_LR;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;a lot of movement, sometime no dot visible
+LMU_447;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_557;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_745;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_657;FAM_LR;no;FAM_LL;no;FAM_RR;yes;FAM_RL;no;low sampling rate? Dot is either jumping around or not visible
+LMU_584;FAM_LR;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;no data
+LMU_109;FAM_LR;no;FAM_LL;no;FAM_RR;no;FAM_RL;no;no data
+LMU_926;FAM_LR;yes;FAM_LL;yes;FAM_RR;yes;FAM_RL;yes;
+LMU_569;FAM_LR;no;FAM_LL;no;FAM_RR;yes;FAM_RL;yes;low sampling rate? Dot is either jumping around or not visible
