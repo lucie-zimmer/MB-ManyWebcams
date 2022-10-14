@@ -216,6 +216,9 @@ H2: Does the eye-tracking method have an effect on the measured proportional loo
 #data$ID <- c(1:95)
 #h2 <- lmer(percorr ~ method + (1|ID), data=data) #same error --> reason: only one observation per participant (no random slope)
 
+data <- data%>%
+  mutate(method = factor(method, levels = c("webcam", "inlab")))
+
 h2 <- lm(percorr ~ method, data)
 
 anova(h2)
@@ -273,3 +276,58 @@ H2.plot <- ggplot(data, aes(x = method, y = percorr, colour = method, fill = met
 
 print(H2.plot)
 ```
+# Bayesian analysis
+
+Bayesian version of the model because it gives us more flexibility with respect to the response distribution (`lm` simply assumes normal distribution but ours is truncated given that we work with proportions).
+
+```{r}
+#visualize response distribution
+# distribution is truncated by 0 and 1 and skewed - Beta distribution might be suited to model this
+
+ggplot(data, aes(x = percorr))+
+  geom_histogram(fill = NA, col = "black")+
+  theme_bw()
+```
+
+
+```{r}
+library(brms)
+library(tidybayes)
+
+# modifying the data because beta regression requires values larger than 0 and smaller than 1
+mdata <- data%>%
+  mutate(percorr = ifelse(percorr == 0, 0.000001, percorr),
+         percorr = ifelse(percorr == 1, 0.999999, percorr))
+
+bm1 <- brm(percorr ~ method,
+           data = mdata,
+           family = Beta(),
+           iter = 2000, warmup = 1000, cores = 4, chains = 4
+           )
+
+# check how well the model is able to reproduce the data
+pp_check(bm1)
+
+# model summary
+bm1
+```
+
+
+```{r}
+# create a new dataset with posterior predictions for the mean for each setting
+post <-mdata%>%
+  distinct(method)%>%
+  add_epred_draws(bm1)
+
+# plot the predicted model average (with 95% CrI) and the data
+ggplot(post, aes(x = .epred, y = method, fill = method))+
+  geom_vline(xintercept = 0.5, lty = 3, alpha = .5)+
+  geom_point(data = mdata, aes(x = percorr, y = method, col = method),pch = 1,alpha = .5)+
+  stat_halfeye(alpha = .75, .width = c(0.66, 0.95))+
+  scale_colour_manual(values=c("skyblue", "red"))  +
+  scale_fill_manual(values=c("skyblue",  "red")) +
+  labs(x = "Proportion Looking Score (target/target+distractor)", y = "Method")+
+  theme_bw()
+```
+
+
