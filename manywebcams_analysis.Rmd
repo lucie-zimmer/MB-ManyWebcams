@@ -144,7 +144,7 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
               file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_EXCLUSION_AFTERPRE))
   
   samplingrate_exclusions <- samplingrate_exclusions[samplingrate_exclusions != ""]
-  print(samplingrate_exclusions) ##################
+  
   samplingrate_exclusions_out <- paste(samplingrate_exclusions, collapse="', '")
   writeLines(paste("['", samplingrate_exclusions_out, "']", sep=""),
               file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_EXCLUSION_SAMPLING))
@@ -181,7 +181,6 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
   }
 }
 
-View(data_webcam)
 ```
 
 # Preprocessing
