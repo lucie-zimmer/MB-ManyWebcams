@@ -66,7 +66,7 @@ FILE_NAME_DEMO <- "demographic_data.csv"
 FILE_NAME_EXCLUSION_AFTERPRE <- "participants_excluded_after_pre.txt"
 
 # already excluded from the datasets, read for reporting
-FILE_NAME_EXCLUSION_MANUAL <- "excluded_rials.csv"
+FILE_NAME_EXCLUSION_MANUAL <- "excluded_trials.csv"
 FILE_NAME_EXCLUSION_SAMPLING <- "excluded_trials_samplingrate.txt"
   
 DIR_NAME_DATA_MERGE <- "lab_data"
@@ -84,6 +84,8 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
   data_demo_list <- list()
   
   posterior_exclusions <- c()
+  samplingrate_exclusions <- c()
+  manual_exclusions_list <- list()
   
   labs <- list.files(path=DIR_NAME_DATA_MERGE)
   for(lab in labs){
@@ -96,15 +98,37 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
     data_demo_part$data_source <- lab
     data_demo_list <- append(data_demo_list, list(data_demo_part))
     
+    manual_exclusions_part <- read.csv2(file.path(DIR_NAME_DATA_MERGE, lab, FILE_NAME_EXCLUSION_MANUAL), stringsAsFactors = TRUE)
+    manual_exclusions_part$data_source <- lab
+    manual_exclusions_list <- append(manual_exclusions_list, list(manual_exclusions_part))
+    
     if (file.exists(file.path(DIR_NAME_DATA_MERGE, lab, FILE_NAME_EXCLUSION_AFTERPRE))){
       posterior_exclusions <- c(posterior_exclusions, readLines(file.path(DIR_NAME_DATA_MERGE, lab, FILE_NAME_EXCLUSION_AFTERPRE)))
     }
+    
+    f_exclusion_sampling <- file.path(DIR_NAME_DATA_MERGE, lab, FILE_NAME_EXCLUSION_SAMPLING)
+    if (file.exists(f_exclusion_sampling)){
+      
+      samplingrate_exclusions_string <- readChar(f_exclusion_sampling, file.info(f_exclusion_sampling)$size)
+      
+      if(samplingrate_exclusions_string != "[]"){
+        samplingrate_exclusions_string <- substr(samplingrate_exclusions_string, 3, nchar(samplingrate_exclusions_string)-3)
+        
+        if(grepl("', '", samplingrate_exclusions_string, fixed=T)){
+          samplingrate_exclusions <- append(samplingrate_exclusions, unlist(strsplit(samplingrate_exclusions_string, "', '", fixed=T)))
+        }else{
+          samplingrate_exclusions <- append(samplingrate_exclusions, samplingrate_exclusions_string)
+        }
+      }
+    }
   }
   
-  #rm(data_webcam_part, data_demo_part)
+  rm(data_webcam_part, data_demo_part, manual_exclusions_part)
   
   data_webcam <- do.call("rbind", data_webcam_list)
   data_demo <- do.call("rbind", data_demo_list)
+  manual_exclusions <- do.call("rbind", manual_exclusions_list)
+
   
   if(!dir.exists(DIR_NAME_DATA_MERGE_OUTPUT)){
     dir.create(DIR_NAME_DATA_MERGE_OUTPUT)
@@ -112,18 +136,40 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
   
   write.csv(data_webcam, file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_WEBCAM), row.names = FALSE)
   write.csv(data_demo, file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_DEMO), row.names = FALSE)
+  write.csv(manual_exclusions, file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_EXCLUSION_MANUAL), row.names = FALSE)
   
-  writeLines(posterior_exclusions <- c(),
+  writeLines(posterior_exclusions,
               file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_EXCLUSION_AFTERPRE))
-
+  
+  samplingrate_exclusions_out <- paste(samplingrate_exclusions, collapse="', '")
+  writeLines(paste("['", samplingrate_exclusions_out, "']", sep=""),
+              file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_EXCLUSION_SAMPLING))
   
 }else{ # singular data source
   data_webcam <- read.csv(FILE_NAME_WEBCAM, stringsAsFactors = TRUE)
   data_demo <- read.csv2(FILE_NAME_DEMO, stringsAsFactors = TRUE)
   
+  manual_exclusions <- read.csv2(FILE_NAME_EXCLUSION_MANUAL, stringsAsFactors = TRUE)
+    
   posterior_exclusions <- c()
   if (file.exists(FILE_NAME_EXCLUSION_AFTERPRE)){
     posterior_exclusions <- readLines(FILE_NAME_EXCLUSION_AFTERPRE)
+  }
+  
+  samplingrate_exclusions <- c()
+  if (file.exists(FILE_NAME_EXCLUSION_SAMPLING)){
+    
+    samplingrate_exclusions_string <- readChar(FILE_NAME_EXCLUSION_SAMPLING, file.info(FILE_NAME_EXCLUSION_SAMPLING)$size)
+    
+    if(samplingrate_exclusions_string != "[]"){
+      samplingrate_exclusions_string <- substr(samplingrate_exclusions_string, 3, nchar(samplingrate_exclusions_string)-3)
+    
+      if(grepl("', '", samplingrate_exclusions_string, fixed=T)){
+        samplingrate_exclusions <- unlist(strsplit(samplingrate_exclusions_string, "', '", fixed=T))
+      }else{
+        samplingrate_exclusions <- c(samplingrate_exclusions_string)
+      }
+    } 
   }
 }
 

@@ -7,14 +7,14 @@ For instructions on how to generate data and further information on the study, r
 
 ## Temporary TODOs for Adrian
 
-- Merge data files
-    - exclusion files (reporting)
+- prepare all the data for the analysis
+- X column?
 - Add number reporting for excluded trials
 
 - @Lucie where to get the demographic data?
 - Where to put the data of all labs (OSF vs Repo)?
 - joined beeswarm render?
-- prepare all the data for the analysis
+
 
 ## Setup
 
