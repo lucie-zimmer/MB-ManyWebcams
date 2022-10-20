@@ -80,4 +80,4 @@ If any participant needs to be excluded from the data after the preprocessing is
 
 #### demographic_data.csv
 
-This file is created manually by filling in the "Individual Lab Participants Data" template, which can be downloaded here: https://docs.google.com/spreadsheets/d/14XckZ6vg7hWV7BC7dj9ga30o0aiEO7v2l_2XQZHV57M/edit#gid=0 The project specific data validator, which can be found here (https://manybabies.shinyapps.io/validator/) should be used before submitting the data. This app checks the demographic data spreadsheet to make sure everything is formatted correctly. Make sure the csv uses ; as a sepearator.
+This file is created manually by filling in the "Individual Lab Participants Data" template, which can be downloaded [here](https://docs.google.com/spreadsheets/d/14XckZ6vg7hWV7BC7dj9ga30o0aiEO7v2l_2XQZHV57M/edit#gid=0). The project specific data [data validator](https://manybabies.shinyapps.io/validator/) should be used to check whether everything is formatted correctly. Make sure the csv uses ; as a sepearator.
