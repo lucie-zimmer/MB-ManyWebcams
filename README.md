@@ -7,7 +7,6 @@ For instructions on how to generate data and further information on the study, r
 
 ## Temporary TODOs for Adrian
 
-- @Lucie where to get the demographic data?
 - Where to put the data of all labs (OSF vs Repo)?
 
 - Add number reporting for excluded trials
@@ -80,5 +79,5 @@ When running the preprocessing script from the [experiment's repository](https:/
 If any participant needs to be excluded from the data after the preprocessing is already done, this file (containing one participant ID per line {TODO: How does this look??}.) can be optionally included to make the analysis script ignore the participants.
 
 #### demographic_data.csv
-(Make sure the csv uses ; as a sepearator)
-TODO: Lucie?
+
+This file is created manually by filling in the "Individual Lab Participants Data" template, which can be downloaded here: https://docs.google.com/spreadsheets/d/14XckZ6vg7hWV7BC7dj9ga30o0aiEO7v2l_2XQZHV57M/edit#gid=0 The project specific data validator, which can be found here (https://manybabies.shinyapps.io/validator/) should be used before submitting the data. This app checks the demographic data spreadsheet to make sure everything is formatted correctly. Make sure the csv uses ; as a sepearator.
