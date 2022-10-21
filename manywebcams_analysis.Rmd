@@ -181,12 +181,17 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
   }
 }
 
+
 ```
 
 # Preprocessing
 
 ```{r}
 # ManyWebcams data
+
+## remove trial identifier from data
+data_webcam$subid <- sub("_[^_]+$", "", data_webcam$subid)
+
 ## exclude toddler from the final data set after relative data was already calculated
 data_webcam <- filter(data_webcam, !subid %in% posterior_exclusions)
 
@@ -202,6 +207,10 @@ data_webcam$distractor <- NULL
 data_webcam$target <- NULL
 data_webcam$none <- NULL
 
+## remove participants that only looked at "none", as they have no valid looking score (TODO How to report, only MPI_006 so far?)
+data_webcam <- data_webcam[!is.nan(data_webcam$percorr),]
+View(data_webcam)
+
 # MB2-Pilot data
 data_inlab <- data_pilot %>%
   filter(experiment_num=="pilot_1a" & t >= -4000 & t <= 0) %>%
@@ -213,6 +222,9 @@ data_inlab <- data_pilot %>%
 ## prepare inlab data for merging
 colnames(data_inlab)[colnames(data_inlab) == 'lookingscore'] <- 'percorr'
 data_inlab$percorr <- round(data_inlab$percorr, digits = 2)
+
+# remove column introduced during merge
+data_webcam <- data_webcam[, c("subid", "percorr")]
 
 # add method (webbased = 0, in-lab = 1)
 data_webcam$method <- "webcam"
@@ -239,16 +251,16 @@ data_webcamDemo <- subset(data_webcamDemo, select = c(subid, age,  gender, count
 data_webcamDemo$age <- (data_webcamDemo$age/30.5)
 
 ## Get number of girls and boys
-sum(data_webcamDemo$gender == "girl") #17
-sum(data_webcamDemo$gender == "boy") #13
+sum(data_webcamDemo$gender == "girl")
+sum(data_webcamDemo$gender == "boy") 
 
 ## Get residence country
-summary(data_webcamDemo$country) # Germany: 19, UK: 8, Austria: 3
+summary(data_webcamDemo$country)
 
 ## Get age range
-mean(data_webcamDemo$age) #22.27 months
-sd(data_webcamDemo$age) #2.400 months
-summary(data_webcamDemo$age) # min.:18.69 months, max.: 26.92 months
+mean(data_webcamDemo$age)
+sd(data_webcamDemo$age)
+summary(data_webcamDemo$age)
 
 ## Descriptives for ManyBabies2-Pilot
 ## n=65 (37 girls; mean age = 23.14 months; range 18.25 ro 26.84 months)

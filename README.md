@@ -5,13 +5,9 @@ This repo contains the analysis script for the [MB-ManyWebcams](https://manybabi
 For instructions on how to generate data and further information on the study, refer to the [experiment's repository](https://github.com/adriansteffan/manywebcams-eyetracking).
 
 
-## Temporary TODOs for Adrian
+## Temporary TODOs
 
-- Where to put the data of all labs (OSF vs Repo)?
-
-- Add number reporting for excluded trials
-- joined beeswarm render?
-
+- Add number reporting for excluded trials (+ analysis)
 
 
 ## Setup
