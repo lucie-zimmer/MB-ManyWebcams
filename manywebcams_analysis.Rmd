@@ -153,7 +153,7 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
   data_webcam <- read.csv(FILE_NAME_WEBCAM, stringsAsFactors = TRUE)
   data_webcam <- data_webcam[ , !(names(data_webcam) %in% c("X"))]
   
-  data_demo <- read.csv2(FILE_NAME_DEMO, stringsAsFactors = TRUE)
+  data_demo <- read.csv2(FILE_NAME_DEMO, stringsAsFactors = TRUE, sep = ",")
   
   manual_exclusions <- read.csv2(FILE_NAME_EXCLUSION_MANUAL, stringsAsFactors = TRUE)
     
@@ -237,14 +237,47 @@ data <- rbind(data_webcam, data_inlab)
 # Descriptives for ManyWebcams
 For the children sample, a total of 50 participants were tested. From these, 15 had to be excluded due to technical errors with the eye tracking procedure (e.g., webcam could not be accessed, data upload) and 3 due to low sampling rate. From the remaining 32 participants, 2 had to be excluded due to interference (e.g., caregiver interfered with procedure or child was inattentive) during the procedure. These trials were identified by visual inspection. The final sample of included children is N = 30.
 ```{r}
+# change data_demo$subid so that they match
+data_webcamDemo_temp <- merge(data_webcam, data_demo, by = c("subid"))
+# which don't match
+x = which(data_webcam$subid %in% data_webcamDemo_temp$subid == FALSE)
+x_subid = data_webcam$subid[x]
+
+data_webcam$subid[which(data_webcam$subid == "UBC002")] = "UBC_002"
+data_webcam$subid[which(data_webcam$subid == "UBC007")] = "UBC_007"
+data_webcam$subid[which(data_webcam$subid == "UBC011")] = "UBC_011"
+data_webcam$subid[which(data_webcam$subid == "UBC014")] = "UBC_014"
+data_webcam$subid[which(data_webcam$subid == "UBC015")] = "UBC_015"
+data_webcam$subid[which(data_webcam$subid == "UBC017")] = "UBC_017"
+
+x = which(data_webcam$subid %in% data_webcamDemo_temp$subid == FALSE)
+x_subid = data_webcam$subid[x]
+rm(data_webcamDemo_temp)
+
+# MPI_003 not in data_demo!
+
 # add info about gender and age to data
-data_webcamDemo <- merge(data_webcam, data_demo, by = c("subid"))
+data_webcamDemo <- merge(data_webcam, data_demo, by = c("subid"), all = TRUE)
+
+data_webcamDemo <- data_webcamDemo %>%
+  filter(method == "webcam")
 
 data_webcamDemo$age <- data_webcamDemo$age_days
 data_webcamDemo$gender <- data_webcamDemo$participant_gender
 data_webcamDemo$country <- data_webcamDemo$residence_country
 
 data_webcamDemo <- subset(data_webcamDemo, select = c(subid, age,  gender, country, percorr))
+
+# adjust gender entries
+for (i in 1:nrow(data_webcamDemo)) {
+  if(!is.na(data_webcamDemo$gender[i])){
+    if(data_webcamDemo$gender[i] == "girl" | data_webcamDemo$gender[i] == "F"){
+      data_webcamDemo$gender[i] = "girl"
+    } else if(data_webcamDemo$gender[i] == "boy" | data_webcamDemo$gender[i] == "M"){
+      data_webcamDemo$gender[i] = "boy"
+    }
+  }
+}
 
 # calculate descriptives
 ## age in months
@@ -258,8 +291,8 @@ sum(data_webcamDemo$gender == "boy")
 summary(data_webcamDemo$country)
 
 ## Get age range
-mean(data_webcamDemo$age)
-sd(data_webcamDemo$age)
+mean(data_webcamDemo$age, na.rm = TRUE)
+sd(data_webcamDemo$age, na.rm = TRUE)
 summary(data_webcamDemo$age)
 
 ## Descriptives for ManyBabies2-Pilot
@@ -267,7 +300,7 @@ summary(data_webcamDemo$age)
 ```
 
 # Inferential Statistics
-H1: Children will engage in goal-based action predictions, indicated by above-chance looking towards the loaction that matches the outcome of an agent´s action goal
+H1: Children will engage in goal-based action predictions, indicated by above-chance looking towards the location that matches the outcome of an agent´s action goal
 ```{r, warning=FALSE}
 t.test(data_webcam$percorr, mu = 0.5, alternative = "two.sided")
 cohen.d(data_webcam$percorr ~ 1, mu = 0.5)
@@ -293,6 +326,7 @@ plot(allEffects(h2))
 
 str(data$subid)
 ```
+
 
 H3: Lower proportion of children who contribute usable data will be lower in webcam-based as compared to lab-based eye-tracking.
 
