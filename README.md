@@ -5,11 +5,6 @@ This repo contains the analysis script for the [MB-ManyWebcams](https://manybabi
 For instructions on how to generate data and further information on the study, refer to the [experiment's repository](https://github.com/adriansteffan/manywebcams-eyetracking).
 
 
-## Temporary TODOs
-
-- Add number reporting for excluded trials (+ analysis)
-
-
 ## Setup
 
 To run the script, installations of [R](https://cran.r-project.org/bin/windows/base/) and [RStudio](https://www.rstudio.com/) are required.
@@ -68,7 +63,7 @@ This file is created manually when checking if participant trial videos match th
 
 #### excluded_trials_samplingrate.txt
 
-When running the preprocessing script from the [experiment's repository](https://github.com/adriansteffan/manywebcams-eyetracking), it will print a list of to the trials that were excluded due to an insufficient sampling rate to the console. {TODO: How does this look??}. While the trial data for these excluded trials was already filtered during preprocessing, these files are needed to report the number of excluded trials.
+When running the preprocessing script from the [experiment's repository](https://github.com/adriansteffan/manywebcams-eyetracking), it will print a list of to the trials that were excluded due to an insufficient sampling rate to the console. While the trial data for these excluded trials was already filtered during preprocessing, these files are needed to report the number of excluded trials.
 
 #### participants_excluded_after_pre.txt
 

@@ -1,13 +1,15 @@
 ---
-title: "ManyWebcams: web-based eye-tracking"
-author: "CDS preliminary analysis"
+title: 'ManyWebcams: web-based eye-tracking'
+author: "ManyWebcams"
 date: '`r format(Sys.time(), "%a %b %d %X %Y")`'
-output: 
+output:
   html_document:
-    toc: true
-    toc_float: true
+    toc: yes
+    toc_float: yes
     number_sections: yes
-editor_options: 
+  pdf_document:
+    toc: yes
+editor_options:
   chunk_output_type: inline
 ---
 
@@ -195,7 +197,6 @@ data_webcam$subid <- sub("_[^_]+$", "", data_webcam$subid)
 ## exclude toddler from the final data set after relative data was already calculated
 data_webcam <- filter(data_webcam, !subid %in% posterior_exclusions)
 
-
 ## long to wide format
 data_webcam$condition <- NULL
 data_webcam$row <- NULL
@@ -209,7 +210,6 @@ data_webcam$none <- NULL
 
 ## remove participants that only looked at "none", as they have no valid looking score (TODO How to report, only MPI_006 so far?)
 data_webcam <- data_webcam[!is.nan(data_webcam$percorr),]
-View(data_webcam)
 
 # MB2-Pilot data
 data_inlab <- data_pilot %>%
@@ -235,7 +235,7 @@ data <- rbind(data_webcam, data_inlab)
 ```
 
 # Descriptives for ManyWebcams
-For the children sample, a total of 50 participants were tested. From these, 15 had to be excluded due to technical errors with the eye tracking procedure (e.g., webcam could not be accessed, data upload) and 3 due to low sampling rate. From the remaining 32 participants, 2 had to be excluded due to interference (e.g., caregiver interfered with procedure or child was inattentive) during the procedure. These trials were identified by visual inspection. The final sample of included children is N = 30.
+
 ```{r}
 # change data_demo$subid so that they match
 data_webcamDemo_temp <- merge(data_webcam, data_demo, by = c("subid"))
@@ -243,8 +243,8 @@ data_webcamDemo_temp <- merge(data_webcam, data_demo, by = c("subid"))
 x = which(data_webcam$subid %in% data_webcamDemo_temp$subid == FALSE)
 x_subid = data_webcam$subid[x]
 
-x = which(data_webcam$subid %in% data_webcamDemo_temp$subid == FALSE)
-x_subid = data_webcam$subid[x]
+x_subid
+
 rm(data_webcamDemo_temp)
 
 # MPI_003 not in data_demo!
@@ -252,8 +252,9 @@ rm(data_webcamDemo_temp)
 # add info about gender and age to data
 data_webcamDemo <- merge(data_webcam, data_demo, by = c("subid"), all = TRUE)
 
+
 data_webcamDemo <- data_webcamDemo %>%
-  filter(method == "webcam")
+  filter(!is.na(percorr))
 
 data_webcamDemo$age <- data_webcamDemo$age_days
 data_webcamDemo$gender <- data_webcamDemo$participant_gender
@@ -261,6 +262,16 @@ data_webcamDemo$country <- data_webcamDemo$residence_country
 
 data_webcamDemo <- subset(data_webcamDemo, select = c(subid, age,  gender, country, percorr))
 
+# adjust gender entries
+for (i in 1:nrow(data_webcamDemo)) {
+  if(!is.na(data_webcamDemo$gender[i])){
+    if(data_webcamDemo$gender[i] == "girl"){
+      data_webcamDemo$gender[i] = "girl"
+    } else if(data_webcamDemo$gender[i] == "boy"){
+      data_webcamDemo$gender[i] = "boy"
+    }
+  }
+}
 
 # calculate descriptives
 ## age in months
@@ -313,16 +324,17 @@ str(data$subid)
 
 H3: Lower proportion of children who contribute usable data will be lower in webcam-based as compared to lab-based eye-tracking.
 
-ManyWebcams: 60% included; exclusion due to technical problems (n= 15), low sampling rate (n= 3), manual exclusion: interference (n = 2) # THIS NEEDS TO BE UPDATED
-ManyBabies2 Pilot: 89.04% included; exclusion due to early termination (n = 6), technical problems (n= 2)
-
 ```{r}
-# TODO: Redo this entire segment
-exclusion.table <- matrix(c(30, 65, 20, 8), nrow = 2, ncol = 2, byrow = T)
+
+nTestedWebcam = nrow(data_demo) - length(posterior_exclusions)
+nIncludedWebcam = nrow(data_webcam)
+
+exclusion.table <- matrix(c(nIncludedWebcam, 65, nTestedWebcam - nIncludedWebcam, 8), nrow = 2, ncol = 2, byrow = T)
 rownames(exclusion.table) <- c('included', 'excluded')
 colnames(exclusion.table) <- c('online', 'in-lab')
 
 exclusion.table
+
 
 h3 <- chisq.test(exclusion.table)
 h3 
@@ -334,8 +346,8 @@ h3$expected
 # preparation for plot
 ```{r}
 # create values for error bars
-mean(data_webcam$percorr) # 0.5898
-mean(data_inlab$percorr)  # 0.7345
+mean(data_webcam$percorr) 
+mean(data_inlab$percorr)
 
 dataErrorbar <- group_by(data, method) %>%
   summarise(mean = mean(percorr), se = sd(percorr)/sqrt(n()), upper = mean + se, lower = mean - se)
@@ -360,6 +372,7 @@ H2.plot <- ggplot(data, aes(x = method, y = percorr, colour = method, fill = met
 
 print(H2.plot)
 ```
+
 # Bayesian analysis
 
 Bayesian version of the model because it gives us more flexibility with respect to the response distribution (`lm` simply assumes normal distribution but ours is truncated given that we work with proportions).
