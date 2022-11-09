@@ -243,13 +243,6 @@ data_webcamDemo_temp <- merge(data_webcam, data_demo, by = c("subid"))
 x = which(data_webcam$subid %in% data_webcamDemo_temp$subid == FALSE)
 x_subid = data_webcam$subid[x]
 
-data_webcam$subid[which(data_webcam$subid == "UBC002")] = "UBC_002"
-data_webcam$subid[which(data_webcam$subid == "UBC007")] = "UBC_007"
-data_webcam$subid[which(data_webcam$subid == "UBC011")] = "UBC_011"
-data_webcam$subid[which(data_webcam$subid == "UBC014")] = "UBC_014"
-data_webcam$subid[which(data_webcam$subid == "UBC015")] = "UBC_015"
-data_webcam$subid[which(data_webcam$subid == "UBC017")] = "UBC_017"
-
 x = which(data_webcam$subid %in% data_webcamDemo_temp$subid == FALSE)
 x_subid = data_webcam$subid[x]
 rm(data_webcamDemo_temp)
@@ -268,16 +261,6 @@ data_webcamDemo$country <- data_webcamDemo$residence_country
 
 data_webcamDemo <- subset(data_webcamDemo, select = c(subid, age,  gender, country, percorr))
 
-# adjust gender entries
-for (i in 1:nrow(data_webcamDemo)) {
-  if(!is.na(data_webcamDemo$gender[i])){
-    if(data_webcamDemo$gender[i] == "girl" | data_webcamDemo$gender[i] == "F"){
-      data_webcamDemo$gender[i] = "girl"
-    } else if(data_webcamDemo$gender[i] == "boy" | data_webcamDemo$gender[i] == "M"){
-      data_webcamDemo$gender[i] = "boy"
-    }
-  }
-}
 
 # calculate descriptives
 ## age in months
@@ -330,10 +313,11 @@ str(data$subid)
 
 H3: Lower proportion of children who contribute usable data will be lower in webcam-based as compared to lab-based eye-tracking.
 
-ManyWebcams: 60% included; exclusion due to technical problems (n= 15), low sampling rate (n= 3), manual exclusion: interference (n = 2)
+ManyWebcams: 60% included; exclusion due to technical problems (n= 15), low sampling rate (n= 3), manual exclusion: interference (n = 2) # THIS NEEDS TO BE UPDATED
 ManyBabies2 Pilot: 89.04% included; exclusion due to early termination (n = 6), technical problems (n= 2)
 
 ```{r}
+# TODO: Redo this entire segment
 exclusion.table <- matrix(c(30, 65, 20, 8), nrow = 2, ncol = 2, byrow = T)
 rownames(exclusion.table) <- c('included', 'excluded')
 colnames(exclusion.table) <- c('online', 'in-lab')
