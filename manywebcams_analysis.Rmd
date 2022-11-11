@@ -212,12 +212,26 @@ data_webcam$none <- NULL
 data_webcam <- data_webcam[!is.nan(data_webcam$percorr),]
 
 # MB2-Pilot data
+
+# because some labs used exactly the same subid
+data_pilot$subid_new <- paste0(data_pilot$subid, "_", data_pilot$lab)
+
 data_inlab <- data_pilot %>%
   filter(experiment_num=="pilot_1a" & t >= -4000 & t <= 0) %>%
-  group_by(subid) %>%
+  group_by(subid_new) %>%
   summarize(
     lookingscore = sum(grepl("target", aoi, fixed = TRUE), na.rm = TRUE) / sum(grepl("target", aoi, fixed = TRUE) | grepl( "distractor", aoi, fixed = TRUE))
   )
+
+for (i in 1:nrow(data_inlab)) {
+  s = data_inlab$subid_new[i]
+  data_inlab$age_days[i] <-unique(data_pilot[data_pilot$subid_new == s, "age"])
+}
+
+data_inlab <- data_inlab %>%
+  mutate(subid = subid_new) %>%
+  select(subid, lookingscore) 
+  
 
 ## prepare inlab data for merging
 colnames(data_inlab)[colnames(data_inlab) == 'lookingscore'] <- 'percorr'
@@ -242,8 +256,6 @@ data_webcamDemo_temp <- merge(data_webcam, data_demo, by = c("subid"))
 # which don't match
 x = which(data_webcam$subid %in% data_webcamDemo_temp$subid == FALSE)
 x_subid = data_webcam$subid[x]
-
-x_subid
 
 rm(data_webcamDemo_temp)
 
@@ -276,6 +288,7 @@ for (i in 1:nrow(data_webcamDemo)) {
 # calculate descriptives
 ## age in months
 data_webcamDemo$age <- (data_webcamDemo$age/30.5)
+data_webcamDemo$z_age <- scale(data_webcamDemo$age, scale = TRUE)
 
 ## Get number of girls and boys
 sum(data_webcamDemo$gender == "girl")
@@ -329,7 +342,8 @@ H3: Lower proportion of children who contribute usable data will be lower in web
 nTestedWebcam = nrow(data_demo) - length(posterior_exclusions)
 nIncludedWebcam = nrow(data_webcam)
 
-exclusion.table <- matrix(c(nIncludedWebcam, 65, nTestedWebcam - nIncludedWebcam, 8), nrow = 2, ncol = 2, byrow = T)
+# is the 8 correct?
+exclusion.table <- matrix(c(nIncludedWebcam, nrow(data_inlab), nTestedWebcam - nIncludedWebcam, 8), nrow = 2, ncol = 2, byrow = T)
 rownames(exclusion.table) <- c('included', 'excluded')
 colnames(exclusion.table) <- c('online', 'in-lab')
 
@@ -427,4 +441,16 @@ ggplot(post, aes(x = .epred, y = method, fill = method))+
   theme_bw()
 ```
 
+# Exploratory analyses
+
+## adding age as a predictor
+
+1. To investigate potential age effects, we will include age as a predictor in an exploratory model.
+
+```{r}
+ex.model <- lm(percorr ~ z_age, data = data_webcamDemo)
+
+summary(ex.model)
+
+```
 
