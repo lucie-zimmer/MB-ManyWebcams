@@ -219,33 +219,25 @@ data_pilot$subid_new <- paste0(data_pilot$subid, "_", data_pilot$lab)
 data_inlab <- data_pilot %>%
   filter(experiment_num=="pilot_1a" & t >= -4000 & t <= 0) %>%
   group_by(subid_new) %>%
-  summarize(
-    lookingscore = sum(grepl("target", aoi, fixed = TRUE), na.rm = TRUE) / sum(grepl("target", aoi, fixed = TRUE) | grepl( "distractor", aoi, fixed = TRUE))
-  )
+  summarize(lookingscore = sum(grepl("target", aoi, fixed = TRUE), na.rm = TRUE) / sum(grepl("target", aoi, fixed = TRUE) | grepl( "distractor", aoi, fixed = TRUE)),
+            age_days = first(age),
+            lab = first(lab))
 
-for (i in 1:nrow(data_inlab)) {
-  s = data_inlab$subid_new[i]
-  data_inlab$age_days[i] <-unique(data_pilot[data_pilot$subid_new == s, "age"])
-}
-
+# prepare for merging
 data_inlab <- data_inlab %>%
-  mutate(subid = subid_new) %>%
-  select(subid, lookingscore) 
+  mutate(subid = subid_new,
+         percorr = lookingscore) %>%
+  select(subid, lab, percorr, age_days) 
+
+data_webcam <- data_webcam %>%
+  rename(lab = data_source)
   
-
 ## prepare inlab data for merging
-colnames(data_inlab)[colnames(data_inlab) == 'lookingscore'] <- 'percorr'
 data_inlab$percorr <- round(data_inlab$percorr, digits = 2)
-
-# remove column introduced during merge
-data_webcam <- data_webcam[, c("subid", "percorr")]
 
 # add method (webbased = 0, in-lab = 1)
 data_webcam$method <- "webcam"
 data_inlab$method <- "inlab"
-
-# merge webbased & inlab
-data <- rbind(data_webcam, data_inlab)
 ```
 
 # Descriptives for ManyWebcams
@@ -287,8 +279,9 @@ for (i in 1:nrow(data_webcamDemo)) {
 
 # calculate descriptives
 ## age in months
-data_webcamDemo$age <- (data_webcamDemo$age/30.5)
-data_webcamDemo$z_age <- scale(data_webcamDemo$age, scale = TRUE)
+data_webcam$age_days <- data_webcamDemo$age
+data_webcamDemo$age_months <- (data_webcamDemo$age/30.5)
+data_webcamDemo$z_age <- scale(data_webcamDemo$age_months, scale = TRUE)
 
 ## Get number of girls and boys
 sum(data_webcamDemo$gender == "girl")
@@ -304,6 +297,21 @@ summary(data_webcamDemo$age)
 
 ## Descriptives for ManyBabies2-Pilot
 ## n=65 (37 girls; mean age = 23.14 months; range 18.25 ro 26.84 months)
+```
+
+```{r}
+# merge webbased & inlab
+data <- rbind(data_webcam, data_inlab)
+
+# change labs names
+data[data$lab == "goettingen_babylab", "lab"] <- "GAUG"
+data[data$lab == "lmu_babylab", "lab"] <- "LMU"
+data[data$lab == "ubc_infantlab", "lab"] <- "UBC"
+data[data$lab == "trento_babylab", "lab"] <- "BLT"
+
+# z-stand. of age
+data$age_months <- (data$age_days/30.5)
+data$z_age <- scale(data$age_days, scale = TRUE)
 ```
 
 # Inferential Statistics
@@ -332,6 +340,12 @@ summary(h2)
 plot(allEffects(h2))
 
 str(data$subid)
+```
+## random intercept for lab
+
+```{r}
+h2.rand.model <- lmer(percorr ~ method + (1|lab), data = data)
+summary(h2.rand.model)
 ```
 
 
@@ -365,6 +379,15 @@ mean(data_inlab$percorr)
 
 dataErrorbar <- group_by(data, method) %>%
   summarise(mean = mean(percorr), se = sd(percorr)/sqrt(n()), upper = mean + se, lower = mean - se)
+
+# create values for 95% CIs
+require(gmodels)
+plot.data <- as.data.frame(round(ci(h2),3))
+plot.data$method <- c("webcam", "inlab")
+
+plot.data[plot.data$method == "inlab", "Estimate"] <- plot.data[plot.data$method == "webcam", "Estimate"] + plot.data[plot.data$method == "inlab", "Estimate"]
+plot.data[plot.data$method == "inlab", "CI lower"] <- plot.data[plot.data$method == "webcam", "CI lower"] + plot.data[plot.data$method == "inlab", "CI lower"]
+plot.data[plot.data$method == "inlab", "CI upper"] <- plot.data[plot.data$method == "webcam", "CI upper"] + plot.data[plot.data$method == "inlab", "CI upper"]
 ```
 
 # plot
@@ -374,13 +397,14 @@ H2.plot <- ggplot(data, aes(x = method, y = percorr, colour = method, fill = met
   geom_violin(alpha = 0.5, width = 1, position = position_dodge(width = 0.9), show.legend = FALSE ) +
   geom_jitter(aes(colour = method),  size = 2, alpha = 0.6, position = position_jitterdodge(jitter.width = 0.2, jitter.height = 0, dodge.width = 0.9), show.legend = FALSE) +
  geom_point(aes(x = method, y = mean), dataErrorbar, inherit.aes = FALSE, size = 2, color = "black") +
-  geom_errorbar(aes(x = method, ymax = upper, ymin = lower), dataErrorbar, inherit.aes = FALSE, 
+  # here are now CIs instead of SE
+  geom_errorbar(aes(x = method, ymax = `CI upper`, ymin = `CI lower`), plot.data, inherit.aes = FALSE, 
              stat = "identity", width = 0.05, color = "black") +
   ylim(0, 1) +
   scale_colour_manual(values=c("skyblue", "red"))  +
   scale_fill_manual(values=c("skyblue",  "red")) +
   geom_hline(yintercept=0.5, linetype="dashed", color = "black") +
-  labs(title="Proportion Looking Score per method", x="Method", y="Proportion Looking Score (target/target+distractor)") +
+  labs(title="Proportion Looking Score per method (95% CIs)", x="Method", y="Proportion Looking Score (target/target+distractor)") +
   scale_x_discrete(labels=c("lab" = "in-lab", "online" = "online")) +
   theme_classic()
 
@@ -452,5 +476,12 @@ ex.model <- lm(percorr ~ z_age, data = data_webcamDemo)
 
 summary(ex.model)
 
+ex.rand.model <- lmer(percorr ~ method + z_age + (1|lab), data = data)
+summary(ex.rand.model)
+
 ```
+
+## recordings sampling rate
+
+3. We plan to analyze the effect of the recording’s sampling rate on the proportional looking score in an additional model.
 
