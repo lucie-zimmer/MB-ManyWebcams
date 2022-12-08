@@ -294,9 +294,6 @@ summary(data_webcamDemo$country)
 mean(data_webcamDemo$age, na.rm = TRUE)
 sd(data_webcamDemo$age, na.rm = TRUE)
 summary(data_webcamDemo$age)
-
-## Descriptives for ManyBabies2-Pilot
-## n=65 (37 girls; mean age = 23.14 months; range 18.25 ro 26.84 months)
 ```
 
 ```{r}
@@ -356,8 +353,7 @@ H3: Lower proportion of children who contribute usable data will be lower in web
 nTestedWebcam = nrow(data_demo) - length(posterior_exclusions)
 nIncludedWebcam = nrow(data_webcam)
 
-# is the 8 correct?
-exclusion.table <- matrix(c(nIncludedWebcam, nrow(data_inlab), nTestedWebcam - nIncludedWebcam, 8), nrow = 2, ncol = 2, byrow = T)
+exclusion.table <- matrix(c(nIncludedWebcam, nrow(data_inlab), 91, 8), nrow = 2, ncol = 2, byrow = T)
 rownames(exclusion.table) <- c('included', 'excluded')
 colnames(exclusion.table) <- c('online', 'in-lab')
 
