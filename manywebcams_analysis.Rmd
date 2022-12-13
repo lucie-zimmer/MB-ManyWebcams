@@ -211,7 +211,6 @@ sampling_rate_data$subid <- sub("_[^_]+$", "", sampling_rate_data$subid)
 
 ## exclude toddler from the final data set after relative data was already calculated
 data_webcam <- filter(data_webcam, !subid %in% posterior_exclusions)
-sampling_rate_data <- filter(sampling_rate_data, !subid %in% posterior_exclusions)
 
 ## long to wide format
 data_webcam$condition <- NULL
@@ -228,11 +227,11 @@ data_webcam$none <- NULL
 data_webcam <- data_webcam[!is.nan(data_webcam$percorr),]
 
 # sampling rate
+sampling_rate_data <- filter(sampling_rate_data, subid %in% data_webcam$subid)
 sampling_rate_mean <- sampling_rate_data %>%
   group_by(subid) %>%
   summarize(sampling_rate = mean(sampling_rate))
 
-sampling_rate_mean <- filter(sampling_rate_mean, subid %in% data_webcam$subid)
 sum(sampling_rate_mean$subid %in% data_webcam$subid == F) # should be 0, otherwise check for mistakes
 data_webcam$sampling_rate <- sampling_rate_mean$sampling_rate 
 
@@ -502,4 +501,6 @@ ex.sampling.model <- lmer(percorr ~ z_age + sampling_rate + (1|lab), data = data
 
 summary(ex.sampling.model)
 ```
+
+Mean sampling rates (per subject) had no effect on the proportional looking score.
 
