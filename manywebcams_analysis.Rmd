@@ -170,6 +170,8 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
   data_demo <- read.csv2(FILE_NAME_DEMO, stringsAsFactors = TRUE, sep = ",")
   
   manual_exclusions <- read.csv2(FILE_NAME_EXCLUSION_MANUAL, stringsAsFactors = TRUE)
+  
+  sampling_rate_data <- read.csv(FILE_NAME_SAMPLING_RATE, stringsAsFactors = TRUE)
     
   posterior_exclusions <- c()
   if (file.exists(FILE_NAME_EXCLUSION_AFTERPRE)){
