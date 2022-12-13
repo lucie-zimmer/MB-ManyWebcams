@@ -73,6 +73,8 @@ FILE_NAME_EXCLUSION_SAMPLING <- "excluded_trials_samplingrate.txt"
   
 DIR_NAME_DATA_MERGE <- "lab_data"
 DIR_NAME_DATA_MERGE_OUTPUT <- "merge_output"
+
+FILE_NAME_SAMPLING_RATE <- "transformed_data.csv"
 ```
 
 # File reading and processing
@@ -89,6 +91,9 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
   samplingrate_exclusions <- c()
   manual_exclusions_list <- list()
   
+  # at the moment only reproducible with the lab_data folder in the repo
+  sampling_rate_data_list <- list()
+  
   labs <- list.files(path=DIR_NAME_DATA_MERGE)
   for(lab in labs){
     
@@ -103,6 +108,10 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
     manual_exclusions_part <- read.csv2(file.path(DIR_NAME_DATA_MERGE, lab, FILE_NAME_EXCLUSION_MANUAL))
     manual_exclusions_part$data_source <- lab
     manual_exclusions_list <- append(manual_exclusions_list, list(manual_exclusions_part))
+    
+    sampling_rate_data_part <- read.csv(file.path(file.path(DIR_NAME_DATA_MERGE, lab, FILE_NAME_SAMPLING_RATE)))
+    sampling_rate_data_part$data_source <- lab
+    sampling_rate_data_list <- append(sampling_rate_data_list, list(sampling_rate_data_part))
     
     if (file.exists(file.path(DIR_NAME_DATA_MERGE, lab, FILE_NAME_EXCLUSION_AFTERPRE))){
       posterior_exclusions <- c(posterior_exclusions, readLines(file.path(DIR_NAME_DATA_MERGE, lab, FILE_NAME_EXCLUSION_AFTERPRE)))
@@ -125,13 +134,15 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
     }
   }
   
-  rm(data_webcam_part, data_demo_part, manual_exclusions_part, samplingrate_exclusions_string)
+  rm(data_webcam_part, data_demo_part, manual_exclusions_part, samplingrate_exclusions_string, sampling_rate_data_part)
   
   data_webcam <- do.call("rbind", data_webcam_list)
   data_webcam <- data_webcam[ , !(names(data_webcam) %in% c("X"))]
   data_demo <- do.call("rbind", data_demo_list)
   data_demo <- as.data.frame(unclass(data_demo), stringsAsFactors = TRUE)
   manual_exclusions <- do.call("rbind", manual_exclusions_list)
+  sampling_rate_data <- do.call("rbind", sampling_rate_data_list)
+  sampling_rate_data <- sampling_rate_data[ , !(names(sampling_rate_data) %in% c("X"))]
 
   
   if(!dir.exists(DIR_NAME_DATA_MERGE_OUTPUT)){
@@ -141,6 +152,7 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
   write.csv(data_webcam, file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_WEBCAM), row.names = FALSE)
   write.csv(data_demo, file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_DEMO), row.names = FALSE)
   write.csv(manual_exclusions, file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_EXCLUSION_MANUAL), row.names = FALSE)
+  write.csv(sampling_rate_data, file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_SAMPLING_RATE), row.names = FALSE)
   
   writeLines(posterior_exclusions,
               file.path(DIR_NAME_DATA_MERGE_OUTPUT, FILE_NAME_EXCLUSION_AFTERPRE))
@@ -193,9 +205,11 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
 
 ## remove trial identifier from data
 data_webcam$subid <- sub("_[^_]+$", "", data_webcam$subid)
+sampling_rate_data$subid <- sub("_[^_]+$", "", sampling_rate_data$subid)
 
 ## exclude toddler from the final data set after relative data was already calculated
 data_webcam <- filter(data_webcam, !subid %in% posterior_exclusions)
+sampling_rate_data <- filter(sampling_rate_data, !subid %in% posterior_exclusions)
 
 ## long to wide format
 data_webcam$condition <- NULL
@@ -210,6 +224,15 @@ data_webcam$none <- NULL
 
 ## remove participants that only looked at "none", as they have no valid looking score (TODO How to report, only MPI_006 so far?)
 data_webcam <- data_webcam[!is.nan(data_webcam$percorr),]
+
+# sampling rate
+sampling_rate_mean <- sampling_rate_data %>%
+  group_by(subid) %>%
+  summarize(sampling_rate = mean(sampling_rate))
+
+sampling_rate_mean <- filter(sampling_rate_mean, subid %in% data_webcam$subid)
+sum(sampling_rate_mean$subid %in% data_webcam$subid == F) # should be 0, otherwise check for mistakes
+data_webcam$sampling_rate <- sampling_rate_mean$sampling_rate 
 
 # MB2-Pilot data
 
@@ -251,8 +274,6 @@ x_subid = data_webcam$subid[x]
 
 rm(data_webcamDemo_temp)
 
-# MPI_003 not in data_demo!
-
 # add info about gender and age to data
 data_webcamDemo <- merge(data_webcam, data_demo, by = c("subid"), all = TRUE)
 
@@ -265,17 +286,6 @@ data_webcamDemo$gender <- data_webcamDemo$participant_gender
 data_webcamDemo$country <- data_webcamDemo$residence_country
 
 data_webcamDemo <- subset(data_webcamDemo, select = c(subid, age,  gender, country, percorr))
-
-# adjust gender entries
-for (i in 1:nrow(data_webcamDemo)) {
-  if(!is.na(data_webcamDemo$gender[i])){
-    if(data_webcamDemo$gender[i] == "girl"){
-      data_webcamDemo$gender[i] = "girl"
-    } else if(data_webcamDemo$gender[i] == "boy"){
-      data_webcamDemo$gender[i] = "boy"
-    }
-  }
-}
 
 # calculate descriptives
 ## age in months
@@ -297,8 +307,13 @@ summary(data_webcamDemo$age)
 ```
 
 ```{r}
+# because we don't have sampling data for the in lab testing
+data_webcam_temp <- data_webcam %>%
+  select(-sampling_rate)
+
 # merge webbased & inlab
-data <- rbind(data_webcam, data_inlab)
+data <- rbind(data_webcam_temp, data_inlab)
+rm(data_webcam_temp)
 
 # change labs names
 data[data$lab == "goettingen_babylab", "lab"] <- "GAUG"
@@ -309,6 +324,7 @@ data[data$lab == "trento_babylab", "lab"] <- "BLT"
 # z-stand. of age
 data$age_months <- (data$age_days/30.5)
 data$z_age <- scale(data$age_days, scale = TRUE)
+data_webcam$z_age <- scale(data_webcam$age_days, scale = TRUE)
 ```
 
 # Inferential Statistics
@@ -335,8 +351,6 @@ h2 <- lm(percorr ~ method, data)
 anova(h2)
 summary(h2)
 plot(allEffects(h2))
-
-str(data$subid)
 ```
 ## random intercept for lab
 
@@ -468,16 +482,22 @@ ggplot(post, aes(x = .epred, y = method, fill = method))+
 1. To investigate potential age effects, we will include age as a predictor in an exploratory model.
 
 ```{r}
-ex.model <- lm(percorr ~ z_age, data = data_webcamDemo)
+ex.age.model <- lm(percorr ~ z_age, data = data_webcamDemo)
 
-summary(ex.model)
+summary(ex.age.model)
 
-ex.rand.model <- lmer(percorr ~ method + z_age + (1|lab), data = data)
-summary(ex.rand.model)
+ex.age.rand.model <- lmer(percorr ~ method + z_age + (1|lab), data = data)
+summary(ex.age.rand.model)
 
 ```
 
 ## recordings sampling rate
 
 3. We plan to analyze the effect of the recording’s sampling rate on the proportional looking score in an additional model.
+
+```{r}
+ex.sampling.model <- lmer(percorr ~ z_age + sampling_rate + (1|lab), data = data_webcam)
+
+summary(ex.sampling.model)
+```
 
