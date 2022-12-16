@@ -497,6 +497,10 @@ summary(ex.age.rand.model)
 3. We plan to analyze the effect of the recording’s sampling rate on the proportional looking score in an additional model.
 
 ```{r}
+mean(data_webcam$sampling_rate)
+sd(data_webcam$sampling_rate)
+summary(data_webcam$sampling_rate)
+
 ex.sampling.model <- lmer(percorr ~ z_age + sampling_rate + (1|lab), data = data_webcam)
 
 summary(ex.sampling.model)
