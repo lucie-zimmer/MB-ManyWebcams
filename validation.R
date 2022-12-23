@@ -16,7 +16,14 @@ deterioration <- validation_data |>
   select(subid, y_det, x_det)
 
 mean_x_det <- mean(deterioration$x_det)
+sd_x_det <- sd(deterioration$x_det)
+cohens_delta_x <- mean_x_det / sd_x_det
 t.test(deterioration$x_det, mu = 0, alternative = "two.sided")
 
 mean_y_det <- mean(deterioration$y_det)
+sd_y_det <- sd(deterioration$y_det)
+cohens_delta_y <- mean_y_det / sd_y_det
 t.test(deterioration$y_det, mu = 0, alternative = "two.sided")
+
+
+
