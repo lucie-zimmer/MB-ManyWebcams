@@ -354,12 +354,6 @@ anova(h2)
 summary(h2)
 plot(allEffects(h2))
 ```
-## random intercept for lab
-
-```{r}
-h2.rand.model <- lmer(percorr ~ 0+ offset(0.5) + method  + (1|lab), data = data)
-summary(h2.rand.model)
-```
 ## beta distribution
 
 ```{r}
@@ -369,7 +363,7 @@ mdata <- data%>%
          percorr = ifelse(percorr == 1, 0.999999, percorr))%>%
   mutate(method = factor(method, levels = c("webcam", "inlab")))
 
-h2.rand.model.beta <- glmmTMB(percorr ~ offset(0.5) + method + (1|lab), data = mdata, family = beta_family())
+h2.rand.model.beta <- glmmTMB(percorr ~  method + (1|lab), data = mdata, family = beta_family())
 summary(h2.rand.model.beta)
 ```
 
@@ -432,6 +426,70 @@ H2.plot <- ggplot(data, aes(x = method, y = percorr, colour = method, fill = met
   theme_classic()
 
 print(H2.plot)
+```
+
+# Trial by trial analysis
+
+```{r}
+# prepare trial by trial data
+
+data_trial_by_trial <- bind_rows(
+  # in lab data 
+  data_pilot %>%
+  filter(experiment_num=="pilot_1a" & t >= -4000 & t <= 0) %>%
+  group_by(subid_new, trial_num) %>%
+  summarize(lookingscore = sum(grepl("target", aoi, fixed = TRUE), na.rm = TRUE) / sum(grepl("target", aoi, fixed = TRUE) | grepl( "distractor", aoi, fixed = TRUE)))%>%
+    na.omit()%>%
+    rename(subid = subid_new),
+  
+# webcam data
+read_csv("transformed_data.csv")%>%
+  mutate(subid = str_remove(subid, "_B"), 
+         subid = str_remove(subid, "_A"))%>%
+  filter(subid %in% data_webcam$subid)%>%
+  group_by(subid, trial_num)%>%
+  summarize(lookingscore = sum(grepl("target", aoi, fixed = TRUE), na.rm = TRUE) / sum(grepl("target", aoi, fixed = TRUE) | grepl( "distractor", aoi, fixed = TRUE)))
+
+)%>%
+  left_join(data%>%select(-percorr), by = "subid")%>%
+  mutate(lookingscore = ifelse(lookingscore == 0, 0.000001, lookingscore),
+         lookingscore = ifelse(lookingscore == 1, 0.999999, lookingscore))%>%
+  mutate(method = factor(method, levels = c("webcam", "inlab")))%>%
+  ungroup()%>%
+  mutate(z_trial_num = scale(trial_num))
+
+```
+
+## Differences between in-lab and webcam 
+
+```{r, warning=FALSE}
+
+h2.rand.model.beta.trial <- glmmTMB(lookingscore ~  method + z_trial_num + (1|lab) + (z_trial_num|subid), data = data_trial_by_trial, family = beta_family())
+
+summary(h2.rand.model.beta.trial)
+```
+## Effect of age
+
+```{r, warning=FALSE}
+
+h2.rand.model.beta.trial.age <- glmmTMB(lookingscore ~  z_age + method + z_trial_num+  (z_age|lab) + (z_trial_num|subid), data = data_trial_by_trial, family = beta_family())
+
+summary(h2.rand.model.beta.trial.age)
+```
+
+## Sampling rate
+
+```{r, warning=FALSE}
+data_trial_by_trial_webcam <- data_trial_by_trial%>%
+  filter(method == "webcam")%>%
+  left_join(data_webcam)%>%
+  ungroup()%>%
+  mutate(z_sampling_rate = scale(sampling_rate), 
+         z_trial_num = scale(trial_num))
+
+h2.rand.model.beta.trial.rate <- glmmTMB(lookingscore ~  z_sampling_rate + z_trial_num +(z_sampling_rate|lab) + (z_trial_num|subid), data = data_trial_by_trial_webcam, family = beta_family())
+
+summary(h2.rand.model.beta.trial.rate)
 ```
 
 # Bayesian analysis
