@@ -460,11 +460,34 @@ sampling_rate_data %>%
   ungroup()%>%
   mutate(z_trial_num = scale(trial_num))
 
+```
+
+## On the difference in aggregation between the preprocessing script and the trial by trial data
+```{r, warning=FALSE}
+
 # The aggregated trial-by-trial data and the relative data lead to slightly different looking scores, as there is no resampling:
 # In relative data, each trials looking score is automatically weighted on how many tracking gazepoints were generated during that trial (as all gazepoints across trials are averaged)
 # In the tbt aggregate, each trials looking score is considered equally (as the average of every trial is taken, and then a average across the 4 trials is calculated) 
 compare_relative_tbt <- data_trial_by_trial %>% group_by(subid) %>% summarise(ls_tbt_mean = mean(lookingscore)) %>% inner_join(data_webcam) %>% select(subid, ls_relative = percorr, ls_tbt_mean)
+
+
+# port of the relevant part of the python preprocessing script to illustrate how the aggregation is done there
+
+python_agg <- sampling_rate_data %>%
+  filter(t <= 4000) %>%
+  group_by(subid, aoi) %>%
+  summarize(points = n()) %>% 
+  mutate(freqR = points/sum(points)) %>%
+  inner_join(
+    read.csv(FILE_NAME_WEBCAM, stringsAsFactors = TRUE) %>% 
+      mutate(subid = str_remove(subid, "_B"), 
+             subid = str_remove(subid, "_A")
+             )
+    , by=c('subid', 'aoi')) %>% 
+  select(subid, aoi, freqR, freq)
+
 ```
+
 
 ## Looking at spread of samplingrate during critical timeframe
 ```{r, warning=FALSE}
