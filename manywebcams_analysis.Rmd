@@ -172,7 +172,7 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
   
   manual_exclusions <- read.csv2(FILE_NAME_EXCLUSION_MANUAL, stringsAsFactors = TRUE)
   
-  sampling_rate_data <- read.csv(FILE_NAME_SAMPLING_RATE, stringsAsFactors = TRUE)
+  sampling_rate_data <- read.csv(FILE_NAME_SAMPLING_RATE, stringsAsFactors = TRUE) 
     
   posterior_exclusions <- c()
   if (file.exists(FILE_NAME_EXCLUSION_AFTERPRE)){
@@ -198,6 +198,7 @@ if(dir.exists(DIR_NAME_DATA_MERGE)){
   }
 }
 
+sampling_rate_data <- sampling_rate_data %>% rename(t = "t...0...8000.")
 
 ```
 
@@ -443,7 +444,8 @@ data_trial_by_trial <- bind_rows(
     rename(subid = subid_new),
   
 # webcam data
-read_csv("transformed_data.csv")%>%
+sampling_rate_data %>%
+  filter(t <= 4000) %>%
   mutate(subid = str_remove(subid, "_B"), 
          subid = str_remove(subid, "_A"))%>%
   filter(subid %in% data_webcam$subid)%>%
@@ -457,6 +459,24 @@ read_csv("transformed_data.csv")%>%
   mutate(method = factor(method, levels = c("webcam", "inlab")))%>%
   ungroup()%>%
   mutate(z_trial_num = scale(trial_num))
+
+# The aggregated trial-by-trial data and the relative data lead to slightly different looking scores, as there is no resampling:
+# In relative data, each trials looking score is automatically weighted on how many tracking gazepoints were generated during that trial (as all gazepoints across trials are averaged)
+# In the tbt aggregate, each trials looking score is considered equally (as the average of every trial is taken, and then a average across the 4 trials is calculated) 
+compare_relative_tbt <- data_trial_by_trial %>% group_by(subid) %>% summarise(ls_tbt_mean = mean(lookingscore)) %>% inner_join(data_webcam) %>% select(subid, ls_relative = percorr, ls_tbt_mean)
+```
+
+## Looking at spread of samplingrate during critical timeframe
+```{r, warning=FALSE}
+
+sampling_spread <- sampling_rate_data %>%
+  filter(t <= 4000) %>% 
+  select(subid,stimulus,t) %>% 
+  group_by(subid, stimulus) %>% 
+  mutate(delta = t - lag(t, default = 0)) %>% 
+  mutate(sampling_hz = 1000.0/delta) %>%
+  slice(2:n()) %>% 
+  summarize(mean = mean(sampling_hz), sd=sd(sampling_hz))
 
 ```
 
