@@ -355,6 +355,7 @@ anova(h2)
 summary(h2)
 plot(allEffects(h2))
 ```
+
 ## beta distribution
 
 ```{r}
@@ -525,12 +526,12 @@ summary(h2.rand.model.beta.trial.age)
 ```{r, warning=FALSE}
 data_trial_by_trial_webcam <- data_trial_by_trial%>%
   filter(method == "webcam")%>%
-  left_join(data_webcam)%>%
+  left_join(data_webcam%>%select(subid, sampling_rate))%>%
   ungroup()%>%
   mutate(z_sampling_rate = scale(sampling_rate), 
          z_trial_num = scale(trial_num))
 
-h2.rand.model.beta.trial.rate <- glmmTMB(lookingscore ~  z_sampling_rate + z_trial_num +(z_sampling_rate|lab) + (z_trial_num|subid), data = data_trial_by_trial_webcam, family = beta_family())
+h2.rand.model.beta.trial.rate <- glmmTMB(lookingscore ~  z_sampling_rate + z_trial_num + z_age + (z_age + z_sampling_rate|lab) + (z_trial_num|subid), data = data_trial_by_trial_webcam, family = beta_family())
 
 summary(h2.rand.model.beta.trial.rate)
 ```
