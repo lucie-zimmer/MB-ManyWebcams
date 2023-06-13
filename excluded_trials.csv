@@ -64,7 +64,6 @@
 "INCH_011","FAM_LR","yes","FAM_LL","yes","FAM_RR","yes","FAM_RL","yes","","INCH"
 "LMU_355","FAM_LR","no","FAM_LL","yes","FAM_RR","yes","FAM_RL","yes","gaze coordinates?","LMU"
 "LMU_968","FAM_LR","yes","FAM_LL","yes","FAM_RR","yes","FAM_RL","yes","low sampling rate? Sometimes gaze coordinate missing","LMU"
-"LMU_858","FAM_LR","no","FAM_LL","no","FAM_RR","no","FAM_RL","no","no child data","LMU"
 "LMU_372","FAM_RL","yes","FAM_RR","yes","FAM_LL","no","FAM_LR","no","child looks away","LMU"
 "LMU_288","FAM_LR","yes","FAM_LL","no","FAM_RR","no","FAM_RL","yes","some gaze coordinates missing","LMU"
 "LMU_158","FAM_RL","no","FAM_RR","yes","FAM_LL","no","FAM_LR","no","child not attentive","LMU"
