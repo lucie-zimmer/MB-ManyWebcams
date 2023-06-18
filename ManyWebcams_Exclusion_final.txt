@@ -1,5 +1,8 @@
-(1) participant-related exclusions
-preterm: 
+# the # at the start of the line identify lines where no excluded participant is specified
+# this is a shortcut so that scripts can access a full list of excluded participants by parsing lines
+# that are not empty nor start with a #
+# (1) participant-related exclusions
+# preterm: 
 BLT_004
 BLT_011
 GAUG_027
@@ -9,7 +12,7 @@ UNAM_003
 UNAM_004
 UNAM_014
 
-too old/young: 
+# too old/young: 
 GAUG_014
 LMU_315
 LMU_256
@@ -20,7 +23,7 @@ NaomiLab5
 NaomiLab10
 UNAM_001
 
-concerns about cognitive development: 
+# concerns about cognitive development: 
 CBL_003
 CBL_009
 CBL_012
@@ -30,12 +33,12 @@ UNAM_010
 UNAM_013
 UNAM_016  
 
-no normal seeing: 
+# no normal seeing: 
 GAUG_021
 LMU_166
 
-(2) technical-related exclusions
-technical error: 
+# (2) technical-related exclusions
+# technical error: 
 BLT_003
 INCH_001
 LMU_815
@@ -72,7 +75,7 @@ MPI_006
 UNAM_020
 UNAM_021
 
-sampling rate: 
+# sampling rate: 
 CBL_011
 LMU_883
 LMU_842
@@ -82,11 +85,11 @@ LMU_569
 LMU_307
 MPI_007
 
-experimenter error:
+# experimenter error:
 CBL_010
 LMU_620
 
-error without further info: 
+# error without further info: 
 UIO_001
 UIO_003
 UIO_008
@@ -96,8 +99,8 @@ UIO_019
 MPI_003
 
 
-(3) exclusion as a result of the visual inspection process
-gaze & dot not matching or dot (completely) missing: 
+# (3) exclusion as a result of the visual inspection process
+# gaze & dot not matching or dot (completely) missing: 
 MWMS2
 UNAM_019
 UNAM_018
@@ -119,19 +122,19 @@ CBL_008
 BLT_009
 GAUG_006
 
-interference by caregiver: 
+# interference by caregiver: 
 LMU_932
 LMU_786
 GAUG_004
 BLT_014
 
-child not attentive:
+# child not attentive:
 UNAM_008
 LMU_999
 LMU_577
 BLT_015
 
-different or no webcam: 
+# different or no webcam: 
 UBC_022
 LMU_924
 LMU_991
@@ -139,11 +142,11 @@ GAUG_025
 GAUG_011
 CBL_004
 
-exclusion without info: 
+# exclusion without info: 
 UBC_012
 UBC_010
 UBC_009
 UBC_004
 
-sunoptimal positioning of child: 
+# suboptimal positioning of child: 
 MPI_002

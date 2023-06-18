@@ -25,6 +25,25 @@ for filename in os.listdir(DATA_DIR):
     df_dict['browser_family'] = user_agent.browser.family
     df_dict['browser_version'] = user_agent.browser.version_string
 
+    if user_agent.os.family == 'Windows' or user_agent.os.family == 'Android':
+        os_tag = f'{user_agent.os.family} {user_agent.os.version_string}'
+    elif user_agent.os.family == 'Mac OS X':
+        if user_agent.os.version_string.startswith('10.15'):
+            os_tag = 'macOS Catalina'
+        elif user_agent.os.version_string.startswith('10.14'):
+            os_tag = 'macOS Mojave'
+        elif user_agent.os.version_string.startswith('10.13'):
+            os_tag = 'macOS High Sierra'
+        elif user_agent.os.version_string.startswith('10.12'):
+            os_tag = 'macOS Sierra'
+        elif user_agent.os.version_string.startswith('10.11'):
+            os_tag = 'macOS El Capitan'
+        else:
+            os_tag = 'macOS'
+    else:
+        os_tag = user_agent.os.family
+
+    df_dict['os_name_for_study'] = os_tag
     df_dict['os_family'] = user_agent.os.family
     df_dict['os_version'] = user_agent.os.version_string
 
