@@ -18,7 +18,7 @@ mean_offset_y_percent
 sd_offset_y_percent <- sd(c(abs(data$avg_offset_y_percent_0), abs(data$avg_offset_y_percent_1)))
 sd_offset_y_percent
 
-deterioration <- validation_data %>% 
+deterioration <- data %>% 
   mutate(y_det = abs(avg_offset_y_percent_1) - abs(avg_offset_y_percent_0),
          x_det = abs(avg_offset_x_percent_1) - abs(avg_offset_x_percent_0)) |> 
   select(subid, y_det, x_det)
