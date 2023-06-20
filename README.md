@@ -5,6 +5,9 @@ This repo contains the analysis script for the [MB-ManyWebcams](https://manybabi
 For instructions on how to generate data and further information on the study, refer to the [experiment's repository](https://github.com/adriansteffan/manywebcams-eyetracking).
 
 
+For an explanation on the different datafiles and their contents, please refer to our [reference](codebook.md).
+
+
 ## Setup
 
 To run the script, installations of [R](https://cran.r-project.org/bin/windows/base/) and [RStudio](https://www.rstudio.com/) are required.
