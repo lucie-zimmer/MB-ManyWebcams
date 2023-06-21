@@ -75,9 +75,47 @@ Uniquely identified by: _subid_ and _aoi_
 ### pilot_data.csv
 
 This file contains data collected during a pilot study of MB2 using in-lab eye-trackers.
-# TODO Start
-TODO: Was there a codebook for the pilot data that we can refer to?
-# TODO End
+ * **subid**
+    * Explanation:unique (within lab) ID for the participant
+    * Values: <participant ID codes>
+ * **lab**
+    * Explanation:unique lab ID in the follow format: enter first the name of your institution (e.g. <lmu>) then your or your lab's name (e.g. 
+      <babylab>), separated by an underscore
+    * Values: e.g., lmu_babylab
+ * **stimulus**
+    * Explanation: The name of the stimulus that was presented during the trial 
+    * Values: e.g., FAM_LL1_1280x960.aviv, FAM_LR2_1280x960.avi, ...
+ * **trial_id**
+    * Explanation: A leftover variable by the pilot studies of Schuwerk, Kampis et al. (2022) that had this data in the export, not used in this study
+    * Values: above 0
+ * **age**
+    * Explanation:chronological age in days.
+    * Values: 1-max age in days, or NA
+ * **t**
+    * Explanation: The timestamp in ms of the recorded data point
+    * Values: integers ranging from -31125 to 8200.
+ * **aoi**
+    * Explanation: specifies the area of interest that was hit at that point in time
+    * Values: "target" = The area with the box and tunnel exit where the bear will emerge; "distractor" = The area with the box and the tunnel exit where 
+      the bear will NOT emerge
+ * **trial_num**
+    * Explanation: which trial number was it?
+    * Values: 1, 2, 3, 4
+ * **error**
+    * Explanation: A leftover variable by the pilot studies of Schuwerk, Kampis et al. (2022) that had this data in the export, not used in this study
+    * Values: always "FALSE"
+ * **experiment_num**
+    * Explanation: which experiment was it? (not used in this study)
+    * Values: pilot_1a or pilot_1b_outcome
+ * **experiment**
+    * Explanation: which number of pilots/experiments was it? (not used in this study)
+    * Values: 1a or 1b
+ * **error_subj**
+    * Explanation: A leftover variable by the pilot studies of Schuwerk, Kampis et al. (2022) that had this data in the export, not used in this study
+    * Values: always "FALSE"
+ * **time_range**
+    * Explanation: A leftover variable by the pilot studies of Schuwerk, Kampis et al. (2022) that had this data in the export, not used in this study
+    * Values: above 0
 
 ### demographic_data.csv
 
