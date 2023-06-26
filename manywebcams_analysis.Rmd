@@ -455,6 +455,7 @@ dataErrorbar <- group_by(data, method) %>%
 
 # create values for 95% CIs
 require(gmodels)
+h2 <- lm(percorr ~ method, data)
 plot.data <- as.data.frame(round(ci(h2),3))
 plot.data$method <- c("webcam", "inlab")
 
