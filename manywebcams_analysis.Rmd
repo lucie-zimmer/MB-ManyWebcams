@@ -472,8 +472,8 @@ H2.plot <- ggplot(data, aes(x = method, y = percorr, colour = method, fill = met
   geom_jitter(aes(colour = method),  size = 2, alpha = 0.6, position = position_jitterdodge(jitter.width = 0.2, jitter.height = 0, dodge.width = 0.9), show.legend = FALSE) +
  geom_point(aes(x = method, y = mean), dataErrorbar, inherit.aes = FALSE, size = 2, color = "black") +
   # here are now CIs instead of SE
-  #geom_errorbar(aes(x = method, ymax = `CI upper`, ymin = `CI lower`), plot.data, inherit.aes = FALSE, 
-  #           stat = "identity", width = 0.05, color = "black") +
+  geom_errorbar(aes(x = c("inlab", "webcam"), ymax = `CI upper`, ymin = `CI lower`), plot.data, inherit.aes = FALSE, stat = "identity", width = 0.05, 
+  color = "black") +
   ylim(0, 1) +
   scale_colour_manual(values=c("skyblue", "red"))  +
   scale_fill_manual(values=c("skyblue",  "red")) +
