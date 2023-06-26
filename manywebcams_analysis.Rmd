@@ -451,17 +451,17 @@ mean(data_webcam$percorr)
 mean(data_inlab$percorr)
 
 dataErrorbar <- group_by(data, method) %>%
-  summarise(mean = mean(percorr), se = sd(percorr)/sqrt(n()), upper = mean + se, lower = mean - se)
+  summarise(mean = mean(percorr), upper = mean + 1.96*(sd(percorr)/sqrt(n())), lower = mean - 1.96*(sd(percorr)/sqrt(n())))
 
 # create values for 95% CIs
-require(gmodels)
-h2 <- lm(percorr ~ method, data)
-plot.data <- as.data.frame(round(ci(h2),3))
-plot.data$method <- c("webcam", "inlab")
+#require(gmodels)
+#h2 <- lm(percorr ~ method, data)
+#plot.data <- as.data.frame(round(ci(h2),3))
+#plot.data$method <- c("webcam", "inlab")
 
-plot.data[plot.data$method == "inlab", "Estimate"] <- plot.data[plot.data$method == "webcam", "Estimate"] + plot.data[plot.data$method == "inlab", "Estimate"]
-plot.data[plot.data$method == "inlab", "CI lower"] <- plot.data[plot.data$method == "webcam", "CI lower"] + plot.data[plot.data$method == "inlab", "CI lower"]
-plot.data[plot.data$method == "inlab", "CI upper"] <- plot.data[plot.data$method == "webcam", "CI upper"] + plot.data[plot.data$method == "inlab", "CI upper"]
+#plot.data[plot.data$method == "inlab", "Estimate"] <- plot.data[plot.data$method == "webcam", "Estimate"] + plot.data[plot.data$method == "inlab", "Estimate"]
+#plot.data[plot.data$method == "inlab", "CI lower"] <- plot.data[plot.data$method == "webcam", "CI lower"] + plot.data[plot.data$method == "inlab", "CI lower"]
+#plot.data[plot.data$method == "inlab", "CI upper"] <- plot.data[plot.data$method == "webcam", "CI upper"] + plot.data[plot.data$method == "inlab", "CI upper"]
 ```
 
 # plot
@@ -471,9 +471,7 @@ H2.plot <- ggplot(data, aes(x = method, y = percorr, colour = method, fill = met
   geom_violin(alpha = 0.5, width = 1, position = position_dodge(width = 0.9), show.legend = FALSE ) +
   geom_jitter(aes(colour = method),  size = 2, alpha = 0.6, position = position_jitterdodge(jitter.width = 0.2, jitter.height = 0, dodge.width = 0.9), show.legend = FALSE) +
  geom_point(aes(x = method, y = mean), dataErrorbar, inherit.aes = FALSE, size = 2, color = "black") +
-  # here are now CIs instead of SE
-  geom_errorbar(aes(x = c("inlab", "webcam"), ymax = `CI upper`, ymin = `CI lower`), plot.data, inherit.aes = FALSE, stat = "identity", width = 0.05, 
-  color = "black") +
+  geom_errorbar(aes(x = c("inlab", "webcam"), ymax = `upper`, ymin = `lower`), dataErrorbar, inherit.aes = FALSE, stat = "identity", width = 0.05, color = "black") +
   ylim(0, 1) +
   scale_colour_manual(values=c("skyblue", "red"))  +
   scale_fill_manual(values=c("skyblue",  "red")) +
