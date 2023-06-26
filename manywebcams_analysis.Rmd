@@ -478,8 +478,8 @@ H2.plot <- ggplot(data, aes(x = method, y = percorr, colour = method, fill = met
   scale_colour_manual(values=c("skyblue", "red"))  +
   scale_fill_manual(values=c("skyblue",  "red")) +
   geom_hline(yintercept=0.5, linetype="dashed", color = "black") +
-  labs(title="Proportion Looking Score per method (95% CIs)", x="Method", y="Proportion Looking Score (target/target+distractor)") +
-  scale_x_discrete(labels=c("lab" = "in-lab", "online" = "online")) +
+  labs(title="Proportional looking score per method (95% CIs)", x="Method", y="Proportional looking score") +
+  scale_x_discrete(labels=c("lab" = "in-lab", "online" = "remote-webbased")) +
   theme_classic()
 
 print(H2.plot)
