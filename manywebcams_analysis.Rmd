@@ -338,99 +338,8 @@ cohen.d(data_webcam$percorr ~ 1, mu = 0.5)
 ```
 
 H2: Does the eye-tracking method have an effect on the measured proportional looking score? No strong directional hypothesis. (Method will be contrast coded (web-based = 0, lab-based = 1))
-```{r, warning=FALSE}
-# Error: number of levels of each grouping factor must be < number of observations (problems: subid)
-# definition of new ID
 
-#data$ID <- NA
-#data$ID <- c(1:95)
-#h2 <- lmer(percorr ~ method + (1|ID), data=data) #same error --> reason: only one observation per participant (no random slope)
-
-data <- data%>%
-  mutate(method = factor(method, levels = c("webcam", "inlab")))
-
-h2 <- lm(percorr ~ method, data)
-
-anova(h2)
-summary(h2)
-plot(allEffects(h2))
-```
-
-## beta distribution
-
-```{r}
-# modifying the data because beta regression requires values larger than 0 and smaller than 1
-mdata <- data%>%
-  mutate(percorr = ifelse(percorr == 0, 0.000001, percorr),
-         percorr = ifelse(percorr == 1, 0.999999, percorr))%>%
-  mutate(method = factor(method, levels = c("webcam", "inlab")))
-
-h2.rand.model.beta <- glmmTMB(percorr ~  method + (1|lab), data = mdata, family = beta_family())
-summary(h2.rand.model.beta)
-```
-
-H3: Lower proportion of children who contribute usable data will be lower in webcam-based as compared to lab-based eye-tracking.
-
-```{r}
-
-nTestedWebcam = nrow(data_demo) - length(posterior_exclusions)
-nIncludedWebcam = nrow(data_webcam)
-
-exclusion.table <- matrix(c(nIncludedWebcam, nrow(data_inlab), 91, 8), nrow = 2, ncol = 2, byrow = T)
-rownames(exclusion.table) <- c('included', 'excluded')
-colnames(exclusion.table) <- c('online', 'in-lab')
-
-exclusion.table
-
-
-h3 <- chisq.test(exclusion.table)
-h3 
-# p-value sign., both variables are not independent
-h3$expected
-```
-
-
-# preparation for plot
-```{r}
-# create values for error bars
-mean(data_webcam$percorr) 
-mean(data_inlab$percorr)
-
-dataErrorbar <- group_by(data, method) %>%
-  summarise(mean = mean(percorr), se = sd(percorr)/sqrt(n()), upper = mean + se, lower = mean - se)
-
-# create values for 95% CIs
-require(gmodels)
-plot.data <- as.data.frame(round(ci(h2),3))
-plot.data$method <- c("webcam", "inlab")
-
-plot.data[plot.data$method == "inlab", "Estimate"] <- plot.data[plot.data$method == "webcam", "Estimate"] + plot.data[plot.data$method == "inlab", "Estimate"]
-plot.data[plot.data$method == "inlab", "CI lower"] <- plot.data[plot.data$method == "webcam", "CI lower"] + plot.data[plot.data$method == "inlab", "CI lower"]
-plot.data[plot.data$method == "inlab", "CI upper"] <- plot.data[plot.data$method == "webcam", "CI upper"] + plot.data[plot.data$method == "inlab", "CI upper"]
-```
-
-# plot
-```{r, warning=FALSE}
-# plot the data
-H2.plot <- ggplot(data, aes(x = method, y = percorr, colour = method, fill = method)) +
-  geom_violin(alpha = 0.5, width = 1, position = position_dodge(width = 0.9), show.legend = FALSE ) +
-  geom_jitter(aes(colour = method),  size = 2, alpha = 0.6, position = position_jitterdodge(jitter.width = 0.2, jitter.height = 0, dodge.width = 0.9), show.legend = FALSE) +
- geom_point(aes(x = method, y = mean), dataErrorbar, inherit.aes = FALSE, size = 2, color = "black") +
-  # here are now CIs instead of SE
-  geom_errorbar(aes(x = method, ymax = `CI upper`, ymin = `CI lower`), plot.data, inherit.aes = FALSE, 
-             stat = "identity", width = 0.05, color = "black") +
-  ylim(0, 1) +
-  scale_colour_manual(values=c("skyblue", "red"))  +
-  scale_fill_manual(values=c("skyblue",  "red")) +
-  geom_hline(yintercept=0.5, linetype="dashed", color = "black") +
-  labs(title="Proportion Looking Score per method (95% CIs)", x="Method", y="Proportion Looking Score (target/target+distractor)") +
-  scale_x_discrete(labels=c("lab" = "in-lab", "online" = "online")) +
-  theme_classic()
-
-print(H2.plot)
-```
-
-# Trial by trial analysis
+##Trial by trial analysis
 
 ```{r}
 # prepare trial by trial data
@@ -512,14 +421,70 @@ h2.rand.model.beta.trial <- glmmTMB(lookingscore ~  method + z_trial_num + (1|la
 
 summary(h2.rand.model.beta.trial)
 ```
-## Effect of age
 
-```{r, warning=FALSE}
 
-h2.rand.model.beta.trial.age <- glmmTMB(lookingscore ~  z_age + method + z_trial_num+  (z_age|lab) + (z_trial_num|subid), data = data_trial_by_trial, family = beta_family())
+H3: Lower proportion of children who contribute usable data will be lower in webcam-based as compared to lab-based eye-tracking.
 
-summary(h2.rand.model.beta.trial.age)
+```{r}
+
+nTestedWebcam = nrow(data_demo) - length(posterior_exclusions)
+nIncludedWebcam = nrow(data_webcam)
+
+exclusion.table <- matrix(c(nIncludedWebcam, nrow(data_inlab), 91, 8), nrow = 2, ncol = 2, byrow = T)
+rownames(exclusion.table) <- c('included', 'excluded')
+colnames(exclusion.table) <- c('online', 'in-lab')
+
+exclusion.table
+
+
+h3 <- chisq.test(exclusion.table)
+h3 
+# p-value sign., both variables are not independent
+h3$expected
 ```
+
+
+# preparation for plot
+```{r}
+# create values for error bars
+mean(data_webcam$percorr) 
+mean(data_inlab$percorr)
+
+dataErrorbar <- group_by(data, method) %>%
+  summarise(mean = mean(percorr), se = sd(percorr)/sqrt(n()), upper = mean + se, lower = mean - se)
+
+# create values for 95% CIs
+require(gmodels)
+plot.data <- as.data.frame(round(ci(h2),3))
+plot.data$method <- c("webcam", "inlab")
+
+plot.data[plot.data$method == "inlab", "Estimate"] <- plot.data[plot.data$method == "webcam", "Estimate"] + plot.data[plot.data$method == "inlab", "Estimate"]
+plot.data[plot.data$method == "inlab", "CI lower"] <- plot.data[plot.data$method == "webcam", "CI lower"] + plot.data[plot.data$method == "inlab", "CI lower"]
+plot.data[plot.data$method == "inlab", "CI upper"] <- plot.data[plot.data$method == "webcam", "CI upper"] + plot.data[plot.data$method == "inlab", "CI upper"]
+```
+
+# plot
+```{r, warning=FALSE}
+# plot the data
+H2.plot <- ggplot(data, aes(x = method, y = percorr, colour = method, fill = method)) +
+  geom_violin(alpha = 0.5, width = 1, position = position_dodge(width = 0.9), show.legend = FALSE ) +
+  geom_jitter(aes(colour = method),  size = 2, alpha = 0.6, position = position_jitterdodge(jitter.width = 0.2, jitter.height = 0, dodge.width = 0.9), show.legend = FALSE) +
+ geom_point(aes(x = method, y = mean), dataErrorbar, inherit.aes = FALSE, size = 2, color = "black") +
+  # here are now CIs instead of SE
+  geom_errorbar(aes(x = method, ymax = `CI upper`, ymin = `CI lower`), plot.data, inherit.aes = FALSE, 
+             stat = "identity", width = 0.05, color = "black") +
+  ylim(0, 1) +
+  scale_colour_manual(values=c("skyblue", "red"))  +
+  scale_fill_manual(values=c("skyblue",  "red")) +
+  geom_hline(yintercept=0.5, linetype="dashed", color = "black") +
+  labs(title="Proportion Looking Score per method (95% CIs)", x="Method", y="Proportion Looking Score (target/target+distractor)") +
+  scale_x_discrete(labels=c("lab" = "in-lab", "online" = "online")) +
+  theme_classic()
+
+print(H2.plot)
+```
+
+# Exploratory analyses
 
 ## Sampling rate
 
@@ -536,63 +501,7 @@ h2.rand.model.beta.trial.rate <- glmmTMB(lookingscore ~  z_sampling_rate + z_tri
 summary(h2.rand.model.beta.trial.rate)
 ```
 
-# Bayesian analysis
-
-Bayesian version of the model because it gives us more flexibility with respect to the response distribution (`lm` simply assumes normal distribution but ours is truncated given that we work with proportions).
-
-```{r}
-#visualize response distribution
-# distribution is truncated by 0 and 1 and skewed - Beta distribution might be suited to model this
-
-ggplot(data, aes(x = percorr))+
-  geom_histogram(fill = NA, col = "black")+
-  theme_bw()
-```
-
-
-```{r}
-library(brms)
-library(tidybayes)
-
-# modifying the data because beta regression requires values larger than 0 and smaller than 1
-mdata <- data%>%
-  mutate(percorr = ifelse(percorr == 0, 0.000001, percorr),
-         percorr = ifelse(percorr == 1, 0.999999, percorr))
-
-bm1 <- brm(percorr ~ method,
-           data = mdata,
-           family = Beta(),
-           iter = 2000, warmup = 1000, cores = 4, chains = 4
-           )
-
-# check how well the model is able to reproduce the data
-pp_check(bm1)
-
-# model summary
-bm1
-```
-
-
-```{r}
-# create a new dataset with posterior predictions for the mean for each setting
-post <-mdata%>%
-  distinct(method)%>%
-  add_epred_draws(bm1)
-
-# plot the predicted model average (with 95% CrI) and the data
-ggplot(post, aes(x = .epred, y = method, fill = method))+
-  geom_vline(xintercept = 0.5, lty = 3, alpha = .5)+
-  geom_point(data = mdata, aes(x = percorr, y = method, col = method),pch = 1,alpha = .5)+
-  stat_halfeye(alpha = .75, .width = c(0.66, 0.95))+
-  scale_colour_manual(values=c("skyblue", "red"))  +
-  scale_fill_manual(values=c("skyblue",  "red")) +
-  labs(x = "Proportion Looking Score (target/target+distractor)", y = "Method")+
-  theme_bw()
-```
-
-# Exploratory analyses
-
-## adding age as a predictor
+## Effect of age: adding age as a predictor
 
 1. To investigate potential age effects, we will include age as a predictor in an exploratory model.
 
@@ -605,20 +514,3 @@ ex.age.rand.model <- lmer(percorr ~ method + z_age + (1|lab), data = data)
 summary(ex.age.rand.model)
 
 ```
-
-## recordings sampling rate
-
-3. We plan to analyze the effect of the recording’s sampling rate on the proportional looking score in an additional model.
-
-```{r}
-mean(data_webcam$sampling_rate)
-sd(data_webcam$sampling_rate)
-summary(data_webcam$sampling_rate)
-
-ex.sampling.model <- lmer(percorr ~ z_age + sampling_rate + (1|lab), data = data_webcam)
-
-summary(ex.sampling.model)
-```
-
-Mean sampling rates (per subject) had no effect on the proportional looking score.
-
