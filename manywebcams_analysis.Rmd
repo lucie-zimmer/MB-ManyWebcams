@@ -464,6 +464,19 @@ dataErrorbar <- group_by(data, method) %>%
 #plot.data[plot.data$method == "inlab", "CI upper"] <- plot.data[plot.data$method == "webcam", "CI upper"] + plot.data[plot.data$method == "inlab", "CI upper"]
 ```
 
+```{r}
+# Bootstrapped CIs
+
+## Package to do bootstrap
+library(tidyboot)
+
+## running this takes a minute or two
+dataBootstrap <- data%>%
+  group_by(method)%>%
+  tidyboot_mean(col = percorr)
+```
+
+
 # plot
 ```{r, warning=FALSE}
 # plot the data
